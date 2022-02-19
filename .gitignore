@@ -1,0 +1,8 @@
+*.pyc
+__pycache__
+SG_Dataset
+SG_Customs
+result.txt
+Direction_Classify/inference/ch_ppocr_mobile_v2.0_cls_infer
+Direction_Classify/inference/ch_ppocr_server_v2.0_det_infer
+Direction_Classify/inference/ch_ppocr_server_v1.1_det_infer
