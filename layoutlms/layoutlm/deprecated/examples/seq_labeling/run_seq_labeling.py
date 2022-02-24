@@ -97,7 +97,7 @@ def train(  # noqa C901
 ):
     """ Train the model """
     if args.local_rank in [-1, 0]:
-        tb_writer = SummaryWriter(logdir="runs/" + os.path.basename(args.output_dir))
+        tb_writer = SummaryWriter(logdir=os.path.join(args.output_dir, "runs/"))
 
     args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
     train_sampler = (
@@ -398,9 +398,8 @@ def main():  # noqa C901
     ## Required parameters
     parser.add_argument(
         "--data_dir",
-        default=None,
+        default='data',
         type=str,
-        required=True,
         help="The input data dir. Should contain the training files for the CoNLL-2003 NER task.",
     )
     parser.add_argument(
@@ -420,16 +419,15 @@ def main():  # noqa C901
     )
     parser.add_argument(
         "--output_dir",
-        default=None,
+        default='../../../../../../drive/\'My Drive\'/output',
         type=str,
-        required=True,
         help="The output directory where the model predictions and checkpoints will be written.",
     )
 
     ## Other parameters
     parser.add_argument(
         "--labels",
-        default="",
+        default="data/label.txt",
         type=str,
         help="Path to a file containing all labels. If not specified, CoNLL-2003 labels are used.",
     )
@@ -471,24 +469,26 @@ def main():  # noqa C901
     )
     parser.add_argument(
         "--evaluate_during_training",
+        default=True,
         action="store_true",
         help="Whether to run evaluation during training at each logging step.",
     )
     parser.add_argument(
         "--do_lower_case",
+        default=True,
         action="store_true",
         help="Set this flag if you are using an uncased model.",
     )
 
     parser.add_argument(
         "--per_gpu_train_batch_size",
-        default=8,
+        default=10,
         type=int,
         help="Batch size per GPU/CPU for training.",
     )
     parser.add_argument(
         "--per_gpu_eval_batch_size",
-        default=8,
+        default=10,
         type=int,
         help="Batch size per GPU/CPU for evaluation.",
     )
@@ -515,7 +515,7 @@ def main():  # noqa C901
     )
     parser.add_argument(
         "--num_train_epochs",
-        default=3.0,
+        default=100.0,
         type=float,
         help="Total number of training epochs to perform.",
     )
@@ -530,12 +530,12 @@ def main():  # noqa C901
     )
 
     parser.add_argument(
-        "--logging_steps", type=int, default=50, help="Log every X updates steps."
+        "--logging_steps", type=int, default=100, help="Log every X updates steps."
     )
     parser.add_argument(
         "--save_steps",
         type=int,
-        default=50,
+        default=262,
         help="Save checkpoint every X updates steps.",
     )
     parser.add_argument(
