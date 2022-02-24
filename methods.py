@@ -4,6 +4,13 @@ from turtle import width
 import cv2 as cv
 import numpy as np
 
+sem_labels = ['ignore', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
+'INVCommodity.COO', 'INVNo', 'INVCurrency', 'INVPage', 'INVCommodity.Desc', 
+'INVDate', 'INVTermType', 'INVCommodity.Total', 'INVCommodity.Qty', 
+'INVTotalQty', 'INVTotal', 'INVCommodity.Price', 'INVCommodity.ItemNo', 
+'INVCommodity.PartNumber', 'INVCommodity.HSCode', 'INVCommodity.Unit', 
+'INVWtUnit', 'INVCommodity.GW', 'INVCommodity.BoxNumber', 'INVTotalNW', 'INVQtyUom']
+
 
 def tokenize(jsn):
     new_jsn = {'items':[]}
@@ -15,15 +22,16 @@ def tokenize(jsn):
         val = item[key]["value"]
 
         vals = val.split(" ")
-        single_ch_len = (loc[1][0] - loc[0][0]) / (len(val) - len(vals) + 1)
+        single_ch_len = (loc[1][0] - loc[0][0]) / len(val)
         
         bef_start = loc[0][0]
         for val in vals:
-            x1 = min(bef_start + int((len(val) + 1/3)*single_ch_len), loc[1][0])
+            x1 = min(bef_start + int((len(val) + 1/2)*single_ch_len), loc[1][0])
             cur_loc = [[bef_start, loc[0][1]], [x1, loc[1][1]]]
-            bef_start = x1 + int(single_ch_len/3)
+            bef_start = x1 + int(single_ch_len/2)
             new_jsn['items'].append({key:{"value":val,"locations":cur_loc}})
-
+            if bef_start >= loc[1][0]: break
+    return new_jsn
 
 def shrink(img, jsn):
     for j in range(len(jsn["items"])):

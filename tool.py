@@ -1,7 +1,5 @@
-from cmath import nan
-import enum
-import imp
-from operator import truediv
+
+
 import os
 
 from methods import *
@@ -10,44 +8,42 @@ from Direction_Classify.tools.infer.correct import rotate_bound
 all_datas = "SG_Dataset"
 
 
-train_img_path = os.path.join( all_datas, "train", "image")
-train_jsn_path = os.path.join( all_datas, "train", "json")
+train_img_path = os.path.join( all_datas, "train_sen", "image")
+train_jsn_path = os.path.join( all_datas, "train_sen", "json")
 
-test_img_path = os.path.join( all_datas, "test", "image")
-test_jsn_path = os.path.join( all_datas, "test", "json")
+test_img_path = os.path.join( all_datas, "test_sen", "image")
+test_jsn_path = os.path.join( all_datas, "test_sen", "json")
 
-sem_labels = ['ignore', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
-'INVCommodity.COO', 'INVNo', 'INVCurrency', 'INVPage', 'INVCommodity.Desc', 
-'INVDate', 'INVTermType', 'INVCommodity.Total', 'INVCommodity.Qty', 
-'INVTotalQty', 'INVTotal', 'INVCommodity.Price', 'INVCommodity.ItemNo', 
-'INVCommodity.PartNumber', 'INVCommodity.HSCode', 'INVCommodity.Unit', 
-'INVWtUnit', 'INVCommodity.GW', 'INVCommodity.BoxNumber', 'INVTotalNW', 'INVQtyUom']
+
 
 
 colors = sem_colors()
 
 
 
-test = 1
+test = 0
 
 train_test_jsn = [train_jsn_path, test_jsn_path]
 train_test_img = [train_img_path, test_img_path]
 
 for i, file in enumerate(os.listdir(train_test_jsn[test])):
-    print(i)
     img_path = os.path.join(train_test_img[test], file[:-4] + 'png')
-    # img = get_img_ori(img_path)
+    img = get_img_ori(img_path)
     jsn = open_json(os.path.join(train_test_jsn[test], file))
-    new_jsn = {"items":[]}
+    # new_jsn = tokenize(jsn)
+    # new_jsn = {"items":[]}
     
     img, ratio = get_img(img_path)
-    for j in range(len(jsn["items"])):
+
+    for j in range(len(jsn["items"])-1, -1, -1):
         item = jsn["items"][j]
         key = list(item.keys())[0]
 
         loc = item[key]["locations"]
         val = item[key]["value"]
-
+        # if loc[0][1] >= loc[1][1] or loc[0][0] >= loc[1][0]:
+        #     print(i, j)
+            # del jsn["items"][j]
         lu, rd = cal_lu_rd_ori(loc, ratio)
 
         cv.rectangle(img, lu, rd, (11,214,14))
@@ -68,13 +64,7 @@ for i, file in enumerate(os.listdir(train_test_jsn[test])):
             # if file not in files: files.append(file)
 
     # with open(os.path.join(train_test_jsn[test], file), 'w') as f:
-    #     json.dump(new_jsn, f)
+    #     json.dump(jsn, f)
 
     cv.imshow(str('1'), img)
     cv.waitKey(0)
-
-
-    #     LU, RD = get_loc_with_ratio(loc, wr, hr)
-    #     if not key == 'ignore':
-    #         cv.rectangle(img, LU, RD, colors[sem_labels.index(key)])
-    #         cv.putText(img, key, LU, cv.FONT_HERSHEY_COMPLEX, 0.4, color=colors[sem_labels.index(key)])
