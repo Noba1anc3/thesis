@@ -23,7 +23,7 @@ import logging
 import os
 import random
 import shutil
-
+import math
 import numpy as np
 import torch
 from seqeval.metrics import (
@@ -404,22 +404,20 @@ def main():  # noqa C901
     )
     parser.add_argument(
         "--model_type",
-        default=None,
+        default="layoutlm",
         type=str,
-        required=True,
         help="Model type selected in the list: " + ", ".join(MODEL_CLASSES.keys()),
     )
     parser.add_argument(
         "--model_name_or_path",
-        default=None,
+        default="microsoft/layoutlm-base-uncased",
         type=str,
-        required=True,
         help="Path to pre-trained model or shortcut name selected in the list: "
         + ", ".join(ALL_MODELS),
     )
     parser.add_argument(
         "--output_dir",
-        default='../../../../../../drive/\'My Drive\'/output',
+        default='output',
         type=str,
         help="The output directory where the model predictions and checkpoints will be written.",
     )
@@ -427,7 +425,7 @@ def main():  # noqa C901
     ## Other parameters
     parser.add_argument(
         "--labels",
-        default="data/label.txt",
+        default="data/labels.txt",
         type=str,
         help="Path to a file containing all labels. If not specified, CoNLL-2003 labels are used.",
     )
@@ -457,7 +455,7 @@ def main():  # noqa C901
         "than this will be truncated, sequences shorter will be padded.",
     )
     parser.add_argument(
-        "--do_train", action="store_true", help="Whether to run training."
+        "--do_train", action="store_true", default=True, help="Whether to run training."
     )
     parser.add_argument(
         "--do_eval", action="store_true", help="Whether to run eval on the dev set."
@@ -535,7 +533,7 @@ def main():  # noqa C901
     parser.add_argument(
         "--save_steps",
         type=int,
-        default=262,
+        default=2616,
         help="Save checkpoint every X updates steps.",
     )
     parser.add_argument(
@@ -585,6 +583,10 @@ def main():  # noqa C901
         "--server_port", type=str, default="", help="For distant debugging."
     )
     args = parser.parse_args()
+
+    args.save_steps /= args.per_gpu_train_batch_size
+    args.save_steps = math.ceil(args.save_steps)
+    print(args.save_steps)
 
     if (
         os.path.exists(args.output_dir)
