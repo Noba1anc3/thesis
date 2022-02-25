@@ -281,7 +281,7 @@ def train(  # noqa C901
                                             break
                                     if name != '':
                                         try:
-                                            shutil.rmtree(name)
+                                            shutil.rmtree(os.path.join(args.output_dir, name))
                                         except:
                                             pass
                                     output_dir = os.path.join(
