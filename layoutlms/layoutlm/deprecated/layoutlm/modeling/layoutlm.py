@@ -185,7 +185,7 @@ class LayoutlmModel(BertModel):
 class LayoutlmForTokenClassification(BertPreTrainedModel):
     config_class = LayoutlmConfig
     pretrained_model_archive_map = LAYOUTLM_PRETRAINED_MODEL_ARCHIVE_MAP
-    base_model_prefix = "bert"
+    # base_model_prefix = "bert"
 
     def __init__(self, config):
         super().__init__(config)
@@ -204,7 +204,6 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         token_type_ids=None,
         position_ids=None,
         head_mask=None,
-        inputs_embeds=None,
         labels=None,
     ):
 
@@ -222,9 +221,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         sequence_output = self.dropout(sequence_output)
         logits = self.classifier(sequence_output)
 
-        outputs = (logits,) + outputs[
-            2:
-        ]  # add hidden states and attention if they are here
+        outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
         if labels is not None:
             loss_fct = CrossEntropyLoss()
             # Only keep active parts of the loss

@@ -270,8 +270,8 @@ def train(  # noqa C901
                                 "eval_{}".format(key), value, global_step
                             )
                             if key == "f1":
-                                if value > f1_score:
-                                    f1_score = value
+                                if value > f1_best:
+                                    f1_best = value
                                     # Save model checkpoint
                                     output_dir = os.path.join(
                                         args.output_dir, "checkpoint-{}-{}".format(global_step, value))
