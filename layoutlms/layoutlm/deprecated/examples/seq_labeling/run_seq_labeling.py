@@ -199,6 +199,8 @@ def train(  # noqa C901
         int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0]
     )
     set_seed(args)  # Added here for reproductibility (even between python 2 and 3)
+    
+    f1_best = -1.0
     for _ in train_iterator:
         epoch_iterator = tqdm(
             train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0]
@@ -267,6 +269,21 @@ def train(  # noqa C901
                             tb_writer.add_scalar(
                                 "eval_{}".format(key), value, global_step
                             )
+                            if key == "f1":
+                                if value > f1_score:
+                                    f1_score = value
+                                    # Save model checkpoint
+                                    output_dir = os.path.join(
+                                        args.output_dir, "checkpoint-{}-{}".format(global_step, value))
+                                    if not os.path.exists(output_dir):
+                                        os.makedirs(output_dir)
+                                    model_to_save = (
+                                        model.module if hasattr(model, "module") else model
+                                    )  # Take care of distributed/parallel training
+                                    model_to_save.save_pretrained(output_dir)
+                                    tokenizer.save_pretrained(output_dir)
+                                    torch.save(args, os.path.join(output_dir, "training_args.bin"))
+                                    logger.info("Saving model checkpoint to %s", output_dir)
                     tb_writer.add_scalar("lr", scheduler.get_lr()[0], global_step)
                     tb_writer.add_scalar(
                         "loss",
@@ -275,24 +292,12 @@ def train(  # noqa C901
                     )
                     logging_loss = tr_loss
 
-                if (
-                    args.local_rank in [-1, 0]
-                    and args.save_steps > 0
-                    and global_step % args.save_steps == 0
-                ):
-                    # Save model checkpoint
-                    output_dir = os.path.join(
-                        args.output_dir, "checkpoint-{}".format(global_step)
-                    )
-                    if not os.path.exists(output_dir):
-                        os.makedirs(output_dir)
-                    model_to_save = (
-                        model.module if hasattr(model, "module") else model
-                    )  # Take care of distributed/parallel training
-                    model_to_save.save_pretrained(output_dir)
-                    tokenizer.save_pretrained(output_dir)
-                    torch.save(args, os.path.join(output_dir, "training_args.bin"))
-                    logger.info("Saving model checkpoint to %s", output_dir)
+                # if (
+                #     args.local_rank in [-1, 0]
+                #     and args.mail_steps > 0
+                #     and global_step % args.mail_steps == 0
+                # ):
+                #     pass
 
             if args.max_steps > 0 and global_step > args.max_steps:
                 epoch_iterator.close()
@@ -586,7 +591,7 @@ def main():  # noqa C901
 
     args.save_steps /= args.per_gpu_train_batch_size
     args.save_steps = math.ceil(args.save_steps)
-    print(args.save_steps)
+    args.per_gpu_eval_batch_size = args.per_gpu_train_batch_size
 
     if (
         os.path.exists(args.output_dir)
