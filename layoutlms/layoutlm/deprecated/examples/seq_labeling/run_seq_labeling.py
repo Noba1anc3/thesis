@@ -273,6 +273,17 @@ def train(  # noqa C901
                                 if value > f1_best:
                                     f1_best = value
                                     # Save model checkpoint
+                                    list_dirs = os.listdir(args.output_dir)
+                                    name = ''
+                                    for item in list_dirs:
+                                        if item.find("checkpoint") != -1:
+                                            name = item
+                                            break
+                                    if name != '':
+                                        try:
+                                            shutil.rmtree(name)
+                                        except:
+                                            pass
                                     output_dir = os.path.join(
                                         args.output_dir, "checkpoint-{}-{}".format(global_step, value))
                                     if not os.path.exists(output_dir):
@@ -551,6 +562,7 @@ def main():  # noqa C901
     )
     parser.add_argument(
         "--overwrite_output_dir",
+        default=True,
         action="store_true",
         help="Overwrite the content of the output directory",
     )

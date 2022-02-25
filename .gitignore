@@ -8,3 +8,4 @@ Direction_Classify/inference/ch_ppocr_server_v2.0_det_infer
 Direction_Classify/inference/ch_ppocr_server_v1.1_det_infer
 layoutlms/layoutlm/deprecated/examples/seq_labeling/data
 layoutlms/layoutlm/deprecated/examples/seq_labeling/output
+detectron2
