@@ -29,7 +29,7 @@ from transformers.utils import check_min_version
 
 
 __dir__ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../")
-funsd_path = os.path.join(__dir__, 'layoutlmft/data/datasets/funsd.py')
+sg_customs_path = os.path.join(__dir__, 'layoutlmft/data/datasets/sg_customs.py')
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 check_min_version("4.5.0")
@@ -89,7 +89,7 @@ def main():
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
-    datasets = load_dataset(os.path.abspath(funsd_path))
+    datasets = load_dataset(sg_customs_path)
 
     if training_args.do_train:
         column_names = datasets["train"].column_names

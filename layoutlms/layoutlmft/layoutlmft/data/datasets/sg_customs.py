@@ -3,6 +3,7 @@
 import json
 import os
 import datasets
+import shutil
 
 from layoutlmft.data.utils import load_image, normalize_bbox
 
@@ -26,7 +27,7 @@ class Funsd(datasets.GeneratorBasedBuilder):
     """Conll2003 dataset."""
 
     BUILDER_CONFIGS = [
-        FunsdConfig(name="funsd", version=datasets.Version("1.0.0"), description="FUNSD dataset"),
+        FunsdConfig(name="sg_customs", version=datasets.Version("1.0.0"), description="SG-Customs dataset"),
     ]
 
     def _info(self):
@@ -52,7 +53,14 @@ class Funsd(datasets.GeneratorBasedBuilder):
 
     def _split_generators(self, dl_manager):
         """Returns SplitGenerators."""
+        huggingface_path = os.path.abspath(__file__).split("modules")[0]
+        datasets_path = os.path.join(huggingface_path, 'datasets/downloads/extracted/d8ac76b6f795fd3b171c5b9e16ea314dae2ff33a13615d31f8c2cc77d07940a6/dataset/')
         downloaded_file = dl_manager.download_and_extract("https://guillaumejaume.github.io/FUNSD/dataset.zip")
+        shutil.rmtree(os.path.join(datasets_path, 'testing_data'))
+        shutil.rmtree(os.path.join(datasets_path, 'training_data'))
+        
+        # shutil.copy()
+
         return [
             datasets.SplitGenerator(
                 name=datasets.Split.TRAIN, gen_kwargs={"filepath": f"{downloaded_file}/dataset/training_data/"}
