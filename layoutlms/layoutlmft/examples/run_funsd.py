@@ -10,7 +10,6 @@ from typing import Optional
 import numpy as np
 from datasets import ClassLabel, load_dataset, load_metric
 
-import layoutlmft.data.datasets.funsd
 import transformers
 from layoutlmft.data import DataCollatorForKeyValueExtraction
 from layoutlmft.data.data_args import DataTrainingArguments
@@ -29,6 +28,9 @@ from transformers.trainer_utils import get_last_checkpoint, is_main_process
 from transformers.utils import check_min_version
 
 
+__dir__ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../")
+funsd_path = os.path.join(__dir__, 'layoutlmft/data/datasets/funsd.py')
+
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 check_min_version("4.5.0")
 
@@ -41,7 +43,7 @@ def main():
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
     parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
-    print(sys.argv)
+
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.
@@ -74,7 +76,7 @@ def main():
 
     # Log on each process the small summary:
     logger.warning(
-        f"Process rank: {training_args.local_rank}, device: {training_args.device}, n_gpu: {training_args.n_gpu}"
+        f"Process rank: {training_args.local_rank}, device: {training_args.device}, n_gpu: {training_args.n_gpu},"
         + f"distributed training: {bool(training_args.local_rank != -1)}, 16-bits training: {training_args.fp16}"
     )
     # Set the verbosity to info of the Transformers logger (on main process only):
@@ -87,7 +89,7 @@ def main():
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
-    datasets = load_dataset(os.path.abspath(layoutlmft.data.datasets.funsd.__file__))
+    datasets = load_dataset(os.path.abspath(funsd_path))
 
     if training_args.do_train:
         column_names = datasets["train"].column_names
