@@ -10,3 +10,4 @@ layoutlms/layoutlm/deprecated/examples/seq_labeling/data
 layoutlms/layoutlm/deprecated/examples/seq_labeling/output
 detectron2
 *.lock
+layoutlms/layoutlmft/data/

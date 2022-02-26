@@ -53,13 +53,18 @@ class Funsd(datasets.GeneratorBasedBuilder):
 
     def _split_generators(self, dl_manager):
         """Returns SplitGenerators."""
-        huggingface_path = os.path.abspath(__file__).split("modules")[0]
-        datasets_path = os.path.join(huggingface_path, 'datasets/downloads/extracted/d8ac76b6f795fd3b171c5b9e16ea314dae2ff33a13615d31f8c2cc77d07940a6/dataset/')
         downloaded_file = dl_manager.download_and_extract("https://guillaumejaume.github.io/FUNSD/dataset.zip")
-        shutil.rmtree(os.path.join(datasets_path, 'testing_data'))
-        shutil.rmtree(os.path.join(datasets_path, 'training_data'))
         
-        # shutil.copy()
+        datasets_path = f'{downloaded_file}/dataset/'
+        proj_data_path = os.path.join(f'{downloaded_file}'.split(".cache")[0],
+            'thesis/thesis/layoutlms/layoutlmft/data')
+        dir_list = os.listdir(datasets_path)
+        dir_list.remove('.DS_Store')
+        for file in dir_list:
+            shutil.rmtree(os.path.join(datasets_path, file))
+
+        shutil.copytree(os.path.join(proj_data_path,'test'), os.path.join(datasets_path, 'test'))
+        shutil.copytree(os.path.join(proj_data_path,'train'), os.path.join(datasets_path, 'train'))
 
         return [
             datasets.SplitGenerator(
