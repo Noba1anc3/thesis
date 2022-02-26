@@ -12,7 +12,14 @@ def normalize_bbox(bbox, size):
         int(1000 * bbox[3] / size[1]),
     ]
 
-
+def normalize_bbox_sg_customs(bbox, size):
+    return [
+        int(1000 * bbox[0][0] / size[0]),
+        int(1000 * bbox[0][1] / size[1]),
+        int(1000 * bbox[1][0] / size[0]),
+        int(1000 * bbox[1][1] / size[1]),
+    ]
+    
 def simplify_bbox(bbox):
     return [
         min(bbox[0::2]),
