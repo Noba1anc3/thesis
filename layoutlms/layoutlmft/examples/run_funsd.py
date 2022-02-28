@@ -178,9 +178,9 @@ def main():
         labels = []
         bboxes = []
         images = []
-        for batch_index in range(len(tokenized_inputs["input_ids"])):
+        for batch_index in range(len(tokenized_inputs["input_ids"])): # 1339*512
             word_ids = tokenized_inputs.word_ids(batch_index=batch_index)
-            org_batch_index = tokenized_inputs["overflow_to_sample_mapping"][batch_index]
+            org_batch_index = tokenized_inputs["overflow_to_sample_mapping"][batch_index] # corresponding example id
 
             label = examples[label_column_name][org_batch_index]
             bbox = examples["bboxes"][org_batch_index]
@@ -188,7 +188,7 @@ def main():
             previous_word_idx = None
             label_ids = []
             bbox_inputs = []
-            for word_idx in word_ids:
+            for word_idx in word_ids: # corresponding index of tokenized tokens
                 # Special tokens have a word id that is None. We set the label to -100 so they are automatically
                 # ignored in the loss function.
                 if word_idx is None:

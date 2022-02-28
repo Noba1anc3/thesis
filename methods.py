@@ -25,11 +25,16 @@ def tokenize(jsn):
         single_ch_len = (loc[1][0] - loc[0][0]) / len(val)
         
         bef_start = loc[0][0]
-        for val in vals:
+        for i, val in enumerate(vals):
             x1 = min(bef_start + int((len(val) + 1/2)*single_ch_len), loc[1][0])
             cur_loc = [[bef_start, loc[0][1]], [x1, loc[1][1]]]
+            if len(vals) == 1: pre = 'S'
+            else:
+                if i == 0: pre = 'B'
+                elif i < len(vals) - 1: pre = 'I'
+                else: pre = 'E'
+            new_jsn['items'].append({key:{"value":val,"locations":cur_loc,"pre":pre}})
             bef_start = x1 + int(single_ch_len/2)
-            new_jsn['items'].append({key:{"value":val,"locations":cur_loc}})
             if bef_start >= loc[1][0]: break
     return new_jsn
 
