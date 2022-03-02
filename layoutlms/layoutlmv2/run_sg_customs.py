@@ -6,21 +6,23 @@ from data_args import DataTrainingArguments
 from model_args import ModelArguments
 from torch.utils.data import DataLoader
 from transformers import (
-    HfArgumentParser,TrainingArguments,LayoutLMv2ForTokenClassification, AdamW
+    HfArgumentParser, TrainingArguments, LayoutLMv2ForTokenClassification, AdamW
 )
 from datasets import load_metric
 import torch
 from tqdm.notebook import tqdm
 
 
-metric = load_metric("seqeval")
+# metric = load_metric("seqeval")
 parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
 
 model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
+train_dataset = load_from_disk('/home/dreamaker/thesis/thesis/layoutlms/layoutlmv2/data/train')
+eval_dataset = load_from_disk('/home/dreamaker/thesis/thesis/layoutlms/layoutlmv2/data/eval')
 
-train_dataset = load_from_disk('data/train')
-eval_dataset = load_from_disk('data/eval')
+train_dataset =train_dataset.remove_columns(['overflow_to_sample_mapping'])
+eval_dataset = eval_dataset.remove_columns(['overflow_to_sample_mapping'])
 
 processor = LayoutLMv2Processor.from_pretrained("microsoft/layoutlmv2-base-uncased", revision="no_ocr")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -28,8 +30,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 train_dataset.set_format(type="torch", device=device)
 eval_dataset.set_format(type="torch", device=device)
 
-train_dataloader = DataLoader(train_dataset, batch_size=training_args.per_gpu_train_batch_size, shuffle=True)
-test_dataloader = DataLoader(eval_dataset, batch_size=training_args.per_gpu_eval_batch_size)
+train_dataloader = DataLoader(train_dataset, batch_size=training_args.per_device_train_batch_size, shuffle=True)
+test_dataloader = DataLoader(eval_dataset, batch_size=training_args.per_device_eval_batch_size)
 
 model = LayoutLMv2ForTokenClassification.from_pretrained('microsoft/layoutlmv2-base-uncased',
                                                           num_labels=25)
@@ -44,7 +46,7 @@ t_total = len(train_dataloader) * num_train_epochs
 
 #put the model in training mode
 model.train()
-for epoch in range(num_train_epochs):  
+for epoch in range(int(num_train_epochs)):  
    print("Epoch:", epoch)
    for batch in tqdm(train_dataloader):
         # zero the parameter gradients

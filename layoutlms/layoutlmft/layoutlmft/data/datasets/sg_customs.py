@@ -32,7 +32,6 @@ class Funsd(datasets.GeneratorBasedBuilder):
 
     def _info(self):
         return datasets.DatasetInfo(
-            # description=_DESCRIPTION,
             features=datasets.Features(
                 {
                     "id": datasets.Value("string"),
@@ -72,9 +71,7 @@ class Funsd(datasets.GeneratorBasedBuilder):
                     "image": datasets.Array3D(shape=(3, 224, 224), dtype="uint8"),
                 }
             ),
-            supervised_keys=None,
-            homepage="https://guillaumejaume.github.io/FUNSD/",
-            # citation=_CITATION,
+            supervised_keys=None
         )
 
     def _split_generators(self, dl_manager):
@@ -119,23 +116,16 @@ class Funsd(datasets.GeneratorBasedBuilder):
             image, size = load_image(image_path)
             for item in data["items"]:
                 label = list(item.keys())[0]
-                words = [item[label]["value"]]
+                words = item[label]["value"]
                 box = item[label]["locations"]
                 if len(words) == 0:
                     continue
                 if label == "ignore":
-                    for w in words:
-                        tokens.append(w)
-                        ner_tags.append("O")
-                        bboxes.append(normalize_bbox_sg_customs(box, size))
+                    tokens.append(words)
+                    ner_tags.append("O")
+                    bboxes.append(normalize_bbox_sg_customs(box, size))
                 else:
-                    tokens.append(words[0])
+                    tokens.append(words)
                     ner_tags.append("S-" + label.upper())
                     bboxes.append(normalize_bbox_sg_customs(box, size))
-                    for w in words[1:]:
-                        print("ERROR")
-                        tokens.append(w)
-                        ner_tags.append("S-" + label.upper())
-                        bboxes.append(normalize_bbox_sg_customs(box, size))
-
             yield guid, {"id": str(guid), "tokens": tokens, "bboxes": bboxes, "ner_tags": ner_tags, "image": image}

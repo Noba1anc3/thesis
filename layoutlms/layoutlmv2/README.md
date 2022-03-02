@@ -19,6 +19,19 @@ python -m torch.distributed.launch --nproc_per_node=4 examples/run_funsd.py \
 ```
 
 
+
+python examples/run_funsd.py \
+        --model_name_or_path microsoft/layoutlmv2-base-uncased \
+        --output_dir output \
+        --do_train \
+        --do_eval \
+        --per_device_train_batch_size 8 \
+        --per_device_eval_batch_size 8 \
+        --eval_steps 200 \
+        --logging_steps 100 \
+        --save_steps 100 \
+        --num_train_epochs 50.0 \
+
 python examples/run_funsd.py \
         --model_name_or_path microsoft/layoutlmv2-base-uncased \
         --output_dir ../../../../../../drive/'My Drive'/output \

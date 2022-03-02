@@ -1,8 +1,9 @@
 import logging
 import os
-
+from PIL import Image
 import torch
 from torch.utils.data import Dataset
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -54,19 +55,13 @@ class FunsdDataset(Dataset):
 
         self.features = features
         # Convert to Tensors and build dataset
-        self.all_input_ids = torch.tensor(
-            [f.input_ids for f in features], dtype=torch.long
-        )
-        self.all_input_mask = torch.tensor(
-            [f.input_mask for f in features], dtype=torch.long
-        )
-        self.all_segment_ids = torch.tensor(
-            [f.segment_ids for f in features], dtype=torch.long
-        )
-        self.all_label_ids = torch.tensor(
-            [f.label_ids for f in features], dtype=torch.long
-        )
+        self.all_input_ids = torch.tensor([f.input_ids for f in features], dtype=torch.long)
+        self.all_input_mask = torch.tensor([f.input_mask for f in features], dtype=torch.long)
+        self.all_segment_ids = torch.tensor([f.segment_ids for f in features], dtype=torch.long)
+        self.all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
         self.all_bboxes = torch.tensor([f.boxes for f in features], dtype=torch.long)
+        self.all_resized_image = torch.tensor([f.resized_image for f in features], dtype=torch.long)
+        self.all_resized_and_aligned_bboxes = [f.resized_and_aligned_bboxes for f in features]
 
     def __len__(self):
         return len(self.features)
@@ -78,13 +73,16 @@ class FunsdDataset(Dataset):
             self.all_segment_ids[index],
             self.all_label_ids[index],
             self.all_bboxes[index],
+            self.all_resized_image[index],
+            self.all_resized_and_aligned_bboxes[index]
         )
 
 
 class InputExample(object):
     """A single training/test example for token classification."""
 
-    def __init__(self, guid, words, labels, boxes, actual_bboxes, file_name, page_size):
+    def __init__(self, guid, words, labels, boxes, actual_bboxes, 
+        file_name, page_size, resized_image, origin_image):
         """Constructs a InputExample.
 
         Args:
@@ -100,6 +98,8 @@ class InputExample(object):
         self.actual_bboxes = actual_bboxes
         self.file_name = file_name
         self.page_size = page_size
+        self.resized_iamge = resized_image
+        self.origin_image = origin_image
 
 
 class InputFeatures(object):
@@ -115,6 +115,8 @@ class InputFeatures(object):
         actual_bboxes,
         file_name,
         page_size,
+        resized_image,
+        resized_and_aligned_bboxes
     ):
         assert (
             0 <= all(boxes) <= 1000
@@ -129,6 +131,8 @@ class InputFeatures(object):
         self.actual_bboxes = actual_bboxes
         self.file_name = file_name
         self.page_size = page_size
+        self.resized_image = resized_image
+        self.resized_and_aligned_bboxes = resized_and_aligned_bboxes
 
 
 def read_examples_from_file(data_dir, mode):
@@ -149,6 +153,8 @@ def read_examples_from_file(data_dir, mode):
         for line, bline, iline in zip(f, fb, fi):
             if line.startswith("-DOCSTART-") or line == "" or line == "\n":
                 if words:
+                    origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
+                    resized_image = origin_image.resize((224, 224))
                     examples.append(
                         InputExample(
                             guid="{}-{}".format(mode, guid_index),
@@ -158,6 +164,8 @@ def read_examples_from_file(data_dir, mode):
                             actual_bboxes=actual_bboxes,
                             file_name=file_name,
                             page_size=page_size,
+                            resized_image=resized_image,
+                            origin_image=origin_image
                         )
                     )
                     guid_index += 1
@@ -189,6 +197,8 @@ def read_examples_from_file(data_dir, mode):
                     # Examples could have no label for mode = "test"
                     labels.append("O")
         if words:
+            origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
+            resized_image = origin_image.resize((224, 224))
             examples.append(
                 InputExample(
                     guid="%s-%d".format(mode, guid_index),
@@ -198,10 +208,28 @@ def read_examples_from_file(data_dir, mode):
                     actual_bboxes=actual_bboxes,
                     file_name=file_name,
                     page_size=page_size,
+                    resized_image=resized_image,
+                    origin_image=origin_image
                 )
             )
     return examples
 
+
+
+def resize_and_align_bounding_box(bbox, original_image, target_size):
+    x_, y_ = original_image.size
+
+    x_scale = target_size / x_ 
+    y_scale = target_size / y_
+    
+    origLeft, origTop, origRight, origBottom = bbox[0][0], bbox[0][1], bbox[1][0], bbox[1][1]
+            
+    x = int(np.round(origLeft * x_scale))
+    y = int(np.round(origTop * y_scale))
+    xmax = int(np.round(origRight * x_scale))
+    ymax = int(np.round(origBottom * y_scale)) 
+    
+    return [x-0.5, y-0.5, xmax+0.5, ymax+0.5]
 
 def convert_examples_to_features(
     examples,
@@ -236,6 +264,8 @@ def convert_examples_to_features(
     for (ex_index, example) in enumerate(examples):
         file_name = example.file_name
         page_size = example.page_size
+        resized_image = example.resized_image
+        origin_image = example.origin_image
         width, height = page_size
         if ex_index % 10000 == 0:
             logger.info("Writing example %d of %d", ex_index, len(examples))
@@ -323,18 +353,25 @@ def convert_examples_to_features(
             segment_ids = ([pad_token_segment_id] * padding_length) + segment_ids
             label_ids = ([pad_token_label_id] * padding_length) + label_ids
             token_boxes = ([pad_token_box] * padding_length) + token_boxes
+            actual_bboxes = ([[0, 0, width, height]] * padding_length) + actual_bboxes
         else:
             input_ids += [pad_token] * padding_length
             input_mask += [0 if mask_padding_with_zero else 1] * padding_length
             segment_ids += [pad_token_segment_id] * padding_length
             label_ids += [pad_token_label_id] * padding_length
             token_boxes += [pad_token_box] * padding_length
+            actual_bboxes += [[0, 0, width, height]] * padding_length
+
+        resized_and_aligned_bboxes = [resize_and_align_bounding_box(bbox, origin_image, 224)
+                                        for bbox in actual_bboxes]
 
         assert len(input_ids) == max_seq_length
         assert len(input_mask) == max_seq_length
         assert len(segment_ids) == max_seq_length
         assert len(label_ids) == max_seq_length
         assert len(token_boxes) == max_seq_length
+        assert len(actual_bboxes) == max_seq_length
+        assert len(resized_and_aligned_bboxes) == max_seq_length
 
         if ex_index < 5:
             logger.info("*** Example ***")
@@ -357,6 +394,8 @@ def convert_examples_to_features(
                 actual_bboxes=actual_bboxes,
                 file_name=file_name,
                 page_size=page_size,
+                resized_image=resized_image,
+                resized_and_aligned_bboxes=resized_and_aligned_bboxes
             )
         )
     return features
