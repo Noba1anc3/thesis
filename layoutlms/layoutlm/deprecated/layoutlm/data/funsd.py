@@ -139,6 +139,7 @@ def read_examples_from_file(data_dir, mode):
     file_path = os.path.join(data_dir, "{}.txt".format(mode))
     box_file_path = os.path.join(data_dir, "{}_box.txt".format(mode))
     image_file_path = os.path.join(data_dir, "{}_image.txt".format(mode))
+
     guid_index = 1
     examples = []
     with open(file_path, encoding="utf-8") as f, open(
@@ -150,11 +151,11 @@ def read_examples_from_file(data_dir, mode):
         file_name = None
         page_size = None
         labels = []
-        for line, bline, iline in zip(f, fb, fi):
+        lst_file_name = file_name
+        for i, (line, bline, iline) in enumerate(zip(f, fb, fi)):
+            print(i)
             if line.startswith("-DOCSTART-") or line == "" or line == "\n":
                 if words:
-                    origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
-                    resized_image = origin_image.resize((224, 224))
                     examples.append(
                         InputExample(
                             guid="{}-{}".format(mode, guid_index),
@@ -193,12 +194,18 @@ def read_examples_from_file(data_dir, mode):
                     actual_bboxes.append(actual_bbox)
                     page_size = [int(i) for i in isplits[2].split()]
                     file_name = isplits[3].strip()
+                    if file_name != lst_file_name:
+                        origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
+                        resized_image = origin_image.copy().resize((224, 224))
+                        lst_file_name = file_name
                 else:
                     # Examples could have no label for mode = "test"
                     labels.append("O")
         if words:
-            origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
-            resized_image = origin_image.resize((224, 224))
+            if lst_file_name != file_name:
+                origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
+                resized_image = origin_image.resize((224, 224))
+                lst_file_name = file_name
             examples.append(
                 InputExample(
                     guid="%s-%d".format(mode, guid_index),

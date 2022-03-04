@@ -51,6 +51,21 @@ pip install .
 # pip install -e ".[dev]"
 ~~~
 
+
+python run_seq_labeling.py  --data_dir data \
+                            --model_type layoutlm \
+                            --model_name_or_path microsoft/layoutlm-base-uncased \
+                            --do_lower_case \
+                            --max_seq_length 512 \
+                            --do_train \
+                            --num_train_epochs 100.0 \
+                            --logging_steps 10 \
+                            --save_steps -1 \
+                            --output_dir output \
+                            --labels data/labels.txt \
+                            --per_gpu_train_batch_size 16 \
+                            --per_gpu_eval_batch_size 16 \
+
 ### Sequence Labeling Task
 
 

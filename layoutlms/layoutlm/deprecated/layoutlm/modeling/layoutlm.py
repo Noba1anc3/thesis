@@ -231,10 +231,9 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
 
         feature_maps = self.backbone(resized_images)
 
-        device = input_ids.device
         resized_bounding_boxes_list = []
         for i in resized_and_aligned_bboxes:
-            resized_bounding_boxes_list.append(i.float().to(device))
+            resized_bounding_boxes_list.append(i.float())
                 
         feat_maps_bboxes = self.roi_align(input=feature_maps, 
                                         # we pass in a list of tensors

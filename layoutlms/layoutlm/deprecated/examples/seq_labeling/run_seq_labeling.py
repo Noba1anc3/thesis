@@ -19,6 +19,7 @@ from __future__ import absolute_import, division, print_function
 
 import argparse
 import glob
+import imp
 import logging
 import os
 import random
@@ -32,6 +33,7 @@ from seqeval.metrics import (
     precision_score,
     recall_score,
 )
+
 from tensorboardX import SummaryWriter
 from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
@@ -49,7 +51,14 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
-from layoutlm import FunsdDataset, LayoutlmConfig, LayoutlmForTokenClassification
+import sys
+
+__dir__ = os.path.dirname(os.path.abspath(__file__))
+__back_dir__ = os.path.join(__dir__, '../..')
+sys.path.append(os.path.abspath(__back_dir__))
+
+from layoutlm.data.funsd import FunsdDataset
+from layoutlm.modeling.layoutlm import LayoutlmConfig, LayoutlmForTokenClassification
 
 logger = logging.getLogger(__name__)
 
@@ -606,7 +615,7 @@ def main():  # noqa C901
     args.save_steps /= args.per_gpu_train_batch_size
     args.save_steps = math.ceil(args.save_steps)
     args.per_gpu_eval_batch_size = args.per_gpu_train_batch_size
-
+    
     if (
         os.path.exists(args.output_dir)
         and os.listdir(args.output_dir)
