@@ -4,6 +4,7 @@ from PIL import Image
 import torch
 from torch.utils.data import Dataset
 import numpy as np
+from torchvision.transforms import ToTensor
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class FunsdDataset(Dataset):
         self.all_segment_ids = torch.tensor([f.segment_ids for f in features], dtype=torch.long)
         self.all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
         self.all_bboxes = torch.tensor([f.boxes for f in features], dtype=torch.long)
-        self.all_resized_image = torch.tensor([f.resized_image for f in features], dtype=torch.long)
+        self.all_resized_image = [ToTensor()(f.resized_image) for f in features]
         self.all_resized_and_aligned_bboxes = [f.resized_and_aligned_bboxes for f in features]
 
     def __len__(self):
