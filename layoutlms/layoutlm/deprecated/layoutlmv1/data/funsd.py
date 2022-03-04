@@ -82,7 +82,7 @@ class InputExample(object):
     """A single training/test example for token classification."""
 
     def __init__(self, guid, words, labels, boxes, actual_bboxes, 
-        file_name, page_size, resized_image, origin_image):
+        file_name, page_size, resized_image, origin_image_size):
         """Constructs a InputExample.
 
         Args:
@@ -98,8 +98,8 @@ class InputExample(object):
         self.actual_bboxes = actual_bboxes
         self.file_name = file_name
         self.page_size = page_size
-        self.resized_iamge = resized_image
-        self.origin_image = origin_image
+        self.resized_image = resized_image
+        self.origin_image_size = origin_image_size
 
 
 class InputFeatures(object):
@@ -166,7 +166,7 @@ def read_examples_from_file(data_dir, mode):
                             file_name=file_name,
                             page_size=page_size,
                             resized_image=resized_image,
-                            origin_image=origin_image
+                            origin_image_size=origin_image.size
                         )
                     )
                     guid_index += 1
@@ -196,7 +196,7 @@ def read_examples_from_file(data_dir, mode):
                     file_name = isplits[3].strip()
                     if file_name != lst_file_name:
                         origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
-                        resized_image = origin_image.copy().resize((224, 224))
+                        resized_image = origin_image.resize((224, 224))
                         lst_file_name = file_name
                 else:
                     # Examples could have no label for mode = "test"
@@ -216,15 +216,15 @@ def read_examples_from_file(data_dir, mode):
                     file_name=file_name,
                     page_size=page_size,
                     resized_image=resized_image,
-                    origin_image=origin_image
+                    origin_image_size=origin_image.size
                 )
             )
     return examples
 
 
 
-def resize_and_align_bounding_box(bbox, original_image, target_size):
-    x_, y_ = original_image.size
+def resize_and_align_bounding_box(bbox, original_image_size, target_size):
+    x_, y_ = original_image_size
 
     x_scale = target_size / x_ 
     y_scale = target_size / y_
@@ -272,7 +272,7 @@ def convert_examples_to_features(
         file_name = example.file_name
         page_size = example.page_size
         resized_image = example.resized_image
-        origin_image = example.origin_image
+        origin_image_size = example.origin_image_size
         width, height = page_size
         if ex_index % 10000 == 0:
             logger.info("Writing example %d of %d", ex_index, len(examples))
@@ -369,7 +369,7 @@ def convert_examples_to_features(
             token_boxes += [pad_token_box] * padding_length
             actual_bboxes += [[0, 0, width, height]] * padding_length
 
-        resized_and_aligned_bboxes = [resize_and_align_bounding_box(bbox, origin_image, 224)
+        resized_and_aligned_bboxes = [resize_and_align_bounding_box(bbox, origin_image_size, 224)
                                         for bbox in actual_bboxes]
 
         assert len(input_ids) == max_seq_length
