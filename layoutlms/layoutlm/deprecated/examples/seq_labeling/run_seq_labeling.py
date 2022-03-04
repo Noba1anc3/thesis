@@ -365,6 +365,8 @@ def evaluate(args, model, tokenizer, labels, pad_token_label_id, mode, prefix=""
             }
             if args.model_type in ["layoutlm"]:
                 inputs["bbox"] = batch[4].to(args.device)
+                inputs["resized_images"] = batch[5].to(args.device)
+                inputs["resized_and_aligned_bboxes"] = batch[6].to(args.device)
             inputs["token_type_ids"] = (
                 batch[2].to(args.device)
                 if args.model_type in ["bert", "layoutlm"]
