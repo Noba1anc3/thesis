@@ -282,20 +282,9 @@ def train(  # noqa C901
                                 "eval_{}".format(key), value, global_step
                             )
                             if key == "f1":
+                                print(value)
                                 if value > f1_best:
                                     f1_best = value
-                                    # Save model checkpoint
-                                    list_dirs = os.listdir(args.output_dir)
-                                    name = ''
-                                    for item in list_dirs:
-                                        if item.find("checkpoint") != -1:
-                                            name = item
-                                            break
-                                    if name != '':
-                                        try:
-                                            shutil.rmtree(os.path.join(args.output_dir, name))
-                                        except:
-                                            pass
                                     output_dir = os.path.join(
                                         args.output_dir, "checkpoint-{}-{}".format(global_step, value))
                                     if not os.path.exists(output_dir):
@@ -411,10 +400,10 @@ def evaluate(args, model, tokenizer, labels, pad_token_label_id, mode, prefix=""
         "recall": recall_score(out_label_list, preds_list),
         "f1": f1_score(out_label_list, preds_list),
     }
-
+    print(results)
     report = classification_report(out_label_list, preds_list)
     logger.info("\n" + report)
-
+    print(report)
     logger.info("***** Eval results %s *****", prefix)
     for key in sorted(results.keys()):
         logger.info("  %s = %s", key, str(results[key]))
