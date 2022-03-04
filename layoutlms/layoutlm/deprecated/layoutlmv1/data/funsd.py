@@ -229,7 +229,7 @@ def resize_and_align_bounding_box(bbox, original_image_size, target_size):
     x_scale = target_size / x_ 
     y_scale = target_size / y_
     
-    origLeft, origTop, origRight, origBottom = bbox[0][0], bbox[0][1], bbox[1][0], bbox[1][1]
+    origLeft, origTop, origRight, origBottom = bbox[0], bbox[1], bbox[2], bbox[3]
             
     x = int(np.round(origLeft * x_scale))
     y = int(np.round(origTop * y_scale))
