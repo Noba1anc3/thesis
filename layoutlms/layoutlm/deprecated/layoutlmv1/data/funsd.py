@@ -62,7 +62,7 @@ class FunsdDataset(Dataset):
         self.all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
         self.all_bboxes = torch.tensor([f.boxes for f in features], dtype=torch.long)
         self.all_resized_image = [ToTensor()(f.resized_image) for f in features]
-        self.all_resized_and_aligned_bboxes = [torch.as_tensor(f.resized_and_aligned_bboxes) for f in features]
+        self.all_resized_and_aligned_bboxes = torch.tensor([f.resized_and_aligned_bboxes for f in features], dtype=torch.long)
 
     def __len__(self):
         return len(self.features)
