@@ -62,7 +62,7 @@ class FunsdDataset(Dataset):
         self.all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
         self.all_bboxes = torch.tensor([f.boxes for f in features], dtype=torch.long)
         self.all_resized_image = [ToTensor()(f.resized_image) for f in features]
-        self.all_resized_and_aligned_bboxes = [f.resized_and_aligned_bboxes.float() for f in features]
+        self.all_resized_and_aligned_bboxes = [torch.as_tensor(f.resized_and_aligned_bboxes) for f in features]
 
     def __len__(self):
         return len(self.features)
@@ -221,8 +221,6 @@ def read_examples_from_file(data_dir, mode):
                 )
             )
     return examples
-
-
 
 def resize_and_align_bounding_box(bbox, original_image_size, target_size):
     x_, y_ = original_image_size
