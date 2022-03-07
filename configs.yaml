@@ -1,5 +1,5 @@
 DocumentFolder:
-  Path: ./data/test
+  Path: ./data/images
 
 ModelType:
   Name: LayoutLM

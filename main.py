@@ -1,4 +1,3 @@
-import imp
 import os
 import cv2 as cv
 import numpy as np
@@ -6,8 +5,38 @@ import yaml
 import sys
 from Direction_Classify.tool.predict_system import TextSystem
 from data.preprocess import convert, seg
+import wget
+import zipfile
+import tarfile
 
 # https://mirror.baidu.com/pypi/simple
+
+
+def downloads():
+    PaddleOCR_url = 'https://github.com/PaddlePaddle/PaddleOCR/archive/refs/heads/release/2.4.zip'
+    det_2_url = 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_det_infer.tar'
+    cls_2_url = 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar'
+    rec_2_url = 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_rec_infer.tar'
+
+    wget.download(PaddleOCR_url)
+    wget.download(det_2_url)
+    wget.download(cls_2_url)
+    wget.download(rec_2_url)
+
+    with zipfile.ZipFile('PaddleOCR-release-2.4.zip') as z:
+        z.extractall(".")
+    os.rename("PaddleOCR-release-2.4", "PaddleOCR")
+    
+    with tarfile.TarFile('ch_ppocr_server_v2.0_det_infer.tar') as t:
+        t.extractall("./models")
+        t.extractall("./Direction_Classify/inference")
+
+    with tarfile.TarFile('ch_ppocr_server_v2.0_rec_infer.tar') as t:
+        t.extractall("./models")
+
+    with tarfile.TarFile('ch_ppocr_server_v2.0_det_infer.tar') as t:
+        t.extractall("./models")
+        t.extractall("./Direction_Classify/inference")
 
 def change_PaddleOCR():
     folder = 'PaddleOCR'
@@ -81,7 +110,7 @@ def get_LayoutLMv2_large_result():
 
 if __name__ == "__main__":
     config = configParser()
-    
+    downloads()
     __dir__ = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(os.path.join(__dir__, "PaddleOCR"))
     from PaddleOCR.tools.infer.predict_system import TextSystem as OCRTextSystem
@@ -89,12 +118,12 @@ if __name__ == "__main__":
 
     for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
         print(file, '\n')
-        # origin_img = cv.imread(os.path.join(config["DocumentFolder"]["Path"], file))
-        # rectified_img = rectifyImage(origin_img)
-        # bboxes, words = get_OCR_result(rectified_img)
-        # if config["ModelType"]["Name"] == "LayoutLM":
-        #     convert(rectified_img.shape, bboxes, words, file)
-        seg()
+        origin_img = cv.imread(os.path.join(config["DocumentFolder"]["Path"], file))
+        rectified_img = rectifyImage(origin_img)
+        bboxes, words = get_OCR_result(rectified_img)
+        if config["ModelType"]["Name"] == "LayoutLM":
+            convert(rectified_img.shape, bboxes, words, file)
+            seg()
         break
 
         # layoutlm_base

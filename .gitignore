@@ -18,4 +18,4 @@ http.log
 data/test.txt
 data/test_image.txt
 data/test_box.txt
-
+*.tmp
