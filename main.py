@@ -9,6 +9,7 @@ from data.preprocess import convert, seg
 import wget
 import zipfile
 import tarfile
+import shutil
 
 # https://mirror.baidu.com/pypi/simple
 
@@ -19,24 +20,26 @@ def downloads():
     cls_2_url = 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar'
     rec_2_url = 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_rec_infer.tar'
 
-    if not os.path.exists("PaddleOCR-release-2.4"): 
+    if not os.path.exists("PaddleOCR"): 
         wget.download(PaddleOCR_url)
         with zipfile.ZipFile('PaddleOCR-release-2.4.zip') as z:
             z.extractall(".")
         os.rename("PaddleOCR-release-2.4", "PaddleOCR")
-    if not os.path.exists("ch_ppocr_server_v2.0_det_infer.tar"): 
-        wget.download(det_2_url)
-        with tarfile.TarFile('ch_ppocr_server_v2.0_det_infer.tar') as t:
-            t.extractall("./models")
-            t.extractall("./Direction_Classify/inference")
-    if not os.path.exists("ch_ppocr_server_v2.0_rec_infer.tar"): 
-        wget.download(rec_2_url)
-        with tarfile.TarFile('ch_ppocr_server_v2.0_rec_infer.tar') as t:
-            t.extractall("./models")
-    if not os.path.exists("ch_ppocr_mobile_v2.0_cls_infer.tar"): 
-        wget.download(cls_2_url)
-        with tarfile.TarFile('ch_ppocr_mobile_v2.0_cls_infer.tar') as t:
-            t.extractall("./Direction_Classify/inference")
+    if not os.path.exists("ch_ppocr_server_v2.0_det_infer.tar"): wget.download(det_2_url)
+    if not os.path.exists("ch_ppocr_server_v2.0_rec_infer.tar"): wget.download(rec_2_url)
+    if not os.path.exists("ch_ppocr_mobile_v2.0_cls_infer.tar"): wget.download(cls_2_url)
+    
+    with tarfile.TarFile('ch_ppocr_server_v2.0_det_infer.tar') as t:
+        t.extractall("./models")
+        t.extractall("./Direction_Classify/inference")
+    with tarfile.TarFile('ch_ppocr_server_v2.0_rec_infer.tar') as t:
+        t.extractall("./models")
+    with tarfile.TarFile('ch_ppocr_mobile_v2.0_cls_infer.tar') as t:
+        t.extractall("./Direction_Classify/inference")
+
+    shutil.copyfile('Direction_Classify/predict_system.py', 'PaddleOCR/tools/infer/predict_system.py')
+    shutil.copyfile('Direction_Classify/rec_postprocess.py', 'PaddleOCR/ppocr/postprocess/rec_postprocess.py')
+
 
 def change_PaddleOCR():
     folder = 'PaddleOCR'
