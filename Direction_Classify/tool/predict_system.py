@@ -206,12 +206,12 @@ class TextSystem(object):
             print('Final Direction : Right\n')
             with open('result.txt', 'a+') as f:
                 f.write(' ' + str(3) + '\n')
-            return rotate_bound(ori_im, 90)
+            return np.array(rotate_bound(ori_im, 90))[0]
         elif left_right >= up_down and lr == 0:
             print('Final Direction : Left\n')
             with open('result.txt', 'a+') as f:
                 f.write(' ' + str(1) + '\n')
-            return rotate_bound(ori_im, 270)
+            return np.array(rotate_bound(ori_im, 270))[0]
         elif left_right < up_down and lr == 1:
             print('Final Direction : Up\n')
             with open('result.txt', 'a+') as f:
@@ -221,7 +221,7 @@ class TextSystem(object):
             print('Final Direction : Down\n')
             with open('result.txt', 'a+') as f:
                 f.write(' ' + str(2) + '\n')
-            return rotate_bound(ori_im, 180)
+            return np.array(rotate_bound(ori_im, 180))[0]
 
 
 def sorted_boxes(dt_boxes):

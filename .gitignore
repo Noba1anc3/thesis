@@ -13,7 +13,8 @@ detectron2
 layoutlms/layoutlmft/data/
 layoutlms/layoutlmv2/data/
 models
-data/images/id.jpg
-data/test
 http.log
+data/test.txt
+data/test_image.txt
+data/test_box.txt
 

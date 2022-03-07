@@ -1,2 +1,6 @@
 DocumentFolder:
-  Path: ./data/images
+  Path: ./data/test
+
+ModelType:
+  Name: LayoutLM
+  Base: True

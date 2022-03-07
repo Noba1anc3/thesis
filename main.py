@@ -1,8 +1,11 @@
+import imp
 import os
 import cv2 as cv
+import numpy as np
 import yaml
 import sys
 from Direction_Classify.tool.predict_system import TextSystem
+from data.preprocess import convert, seg
 
 # https://mirror.baidu.com/pypi/simple
 
@@ -37,20 +40,28 @@ def change_PaddleOCR():
                         f.writelines(content)
                     f.close()
 
-def del_():
-    for i in range(len(sys.path)-1, -1, -1):
-        if sys.path[i].find("Direction_Classify") >= 0:
-            del sys.path[i]
-
-def change_syspath_folder():
-    ppocr = os.path.join(__dir__, "Direction_Classify")
-    os.rename(ppocr, ppocr+"s")
-
-
 def get_OCR_result(image):
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
-    print(dt_boxes, rec_res)
+    bboxes, words = getOCR(dt_boxes, rec_res)
+    return bboxes, words
+
+def getOCR(dt_boxes, rec_res):
+    bboxes = []
+    words = []
+    
+    for dt_box in dt_boxes:
+        dt_box = dt_box.tolist()
+        bbox = [[int(min(dt_box[0][0], dt_box[3][0])), int(min(dt_box[0][1], dt_box[1][1]))],
+                [int(max(dt_box[1][0], dt_box[2][0])), int(max(dt_box[2][1], dt_box[3][1]))]]
+        bboxes.append(bbox)
+    
+    for rec in rec_res:
+        words.append(rec[0])
+
+    assert len(bboxes) == len(words)
+    return bboxes, words
+
 
 def configParser():
     with open("configs.yaml", "r") as f:
@@ -76,11 +87,17 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(__dir__, "PaddleOCR"))
     from PaddleOCR.tools.infer.predict_system import TextSystem as OCRTextSystem
     change_PaddleOCR()
+
+    for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
+        print(file, '\n')
+        # origin_img = cv.imread(os.path.join(config["DocumentFolder"]["Path"], file))
+        # rectified_img = rectifyImage(origin_img)
+        # bboxes, words = get_OCR_result(rectified_img)
+        # if config["ModelType"]["Name"] == "LayoutLM":
+        #     convert(rectified_img.shape, bboxes, words, file)
+        seg()
+        break
     
-    for file in os.listdir(config["DocumentFolder"]["Path"]):
-        origin_img = cv.imread(os.path.join(config["DocumentFolder"]["Path"], file))
-        rectified_img = rectifyImage(origin_img)
-        get_OCR_result(rectified_img)
         # layoutlm_base
         # layoutlmv2_base
         # layoutlmv2_large
