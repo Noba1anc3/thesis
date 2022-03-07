@@ -61,8 +61,8 @@ class FunsdDataset(Dataset):
         self.all_segment_ids = torch.tensor([f.segment_ids for f in features], dtype=torch.long)
         self.all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
         self.all_bboxes = torch.tensor([f.boxes for f in features], dtype=torch.long)
-        self.all_resized_image = [ToTensor()(f.resized_image) for f in features]
-        self.all_resized_and_aligned_bboxes = torch.tensor([f.resized_and_aligned_bboxes for f in features], dtype=torch.long)
+        # self.all_resized_image = [ToTensor()(f.resized_image) for f in features]
+        # self.all_resized_and_aligned_bboxes = torch.tensor([f.resized_and_aligned_bboxes for f in features], dtype=torch.long)
 
     def __len__(self):
         return len(self.features)
@@ -74,8 +74,8 @@ class FunsdDataset(Dataset):
             self.all_segment_ids[index],
             self.all_label_ids[index],
             self.all_bboxes[index],
-            self.all_resized_image[index],
-            self.all_resized_and_aligned_bboxes[index]
+            # self.all_resized_image[index],
+            # self.all_resized_and_aligned_bboxes[index]
         )
 
 
@@ -116,8 +116,8 @@ class InputFeatures(object):
         actual_bboxes,
         file_name,
         page_size,
-        resized_image,
-        resized_and_aligned_bboxes
+        # resized_image,
+        # resized_and_aligned_bboxes
     ):
         assert (
             0 <= all(boxes) <= 1000
@@ -132,8 +132,8 @@ class InputFeatures(object):
         self.actual_bboxes = actual_bboxes
         self.file_name = file_name
         self.page_size = page_size
-        self.resized_image = resized_image
-        self.resized_and_aligned_bboxes = resized_and_aligned_bboxes
+        # self.resized_image = resized_image
+        # self.resized_and_aligned_bboxes = resized_and_aligned_bboxes
 
 
 def read_examples_from_file(data_dir, mode):
@@ -152,9 +152,9 @@ def read_examples_from_file(data_dir, mode):
         file_name = None
         page_size = None
         labels = []
-        lst_file_name = file_name
+        # lst_file_name = file_name
         for i, (line, bline, iline) in enumerate(zip(f, fb, fi)):
-            print(i)
+            # print(i)
             if line.startswith("-DOCSTART-") or line == "" or line == "\n":
                 if words:
                     examples.append(
@@ -166,8 +166,8 @@ def read_examples_from_file(data_dir, mode):
                             actual_bboxes=actual_bboxes,
                             file_name=file_name,
                             page_size=page_size,
-                            resized_image=resized_image,
-                            origin_image_size=origin_image.size
+                            # resized_image=resized_image,
+                            # origin_image_size=origin_image.size
                         )
                     )
                     guid_index += 1
@@ -195,18 +195,18 @@ def read_examples_from_file(data_dir, mode):
                     actual_bboxes.append(actual_bbox)
                     page_size = [int(i) for i in isplits[2].split()]
                     file_name = isplits[3].strip()
-                    if file_name != lst_file_name:
-                        origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
-                        resized_image = origin_image.resize((224, 224))
-                        lst_file_name = file_name
+                    # if file_name != lst_file_name:
+                    #     origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
+                    #     resized_image = origin_image.resize((224, 224))
+                    #     lst_file_name = file_name
                 else:
                     # Examples could have no label for mode = "test"
                     labels.append("O")
         if words:
-            if lst_file_name != file_name:
-                origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
-                resized_image = origin_image.resize((224, 224))
-                lst_file_name = file_name
+            # if lst_file_name != file_name:
+            #     origin_image = Image.open(os.path.join(data_dir, mode, "image", file_name))
+            #     resized_image = origin_image.resize((224, 224))
+            #     lst_file_name = file_name
             examples.append(
                 InputExample(
                     guid="%s-%d".format(mode, guid_index),
@@ -216,8 +216,8 @@ def read_examples_from_file(data_dir, mode):
                     actual_bboxes=actual_bboxes,
                     file_name=file_name,
                     page_size=page_size,
-                    resized_image=resized_image,
-                    origin_image_size=origin_image.size
+                    # resized_image=resized_image,
+                    # origin_image_size=origin_image.size
                 )
             )
     return examples
@@ -270,8 +270,8 @@ def convert_examples_to_features(
     for (ex_index, example) in enumerate(examples):
         file_name = example.file_name
         page_size = example.page_size
-        resized_image = example.resized_image
-        origin_image_size = example.origin_image_size
+        # resized_image = example.resized_image
+        # origin_image_size = example.origin_image_size
         width, height = page_size
         if ex_index % 10000 == 0:
             logger.info("Writing example %d of %d", ex_index, len(examples))
@@ -368,8 +368,8 @@ def convert_examples_to_features(
             token_boxes += [pad_token_box] * padding_length
             actual_bboxes += [[0, 0, width, height]] * padding_length
 
-        resized_and_aligned_bboxes = [resize_and_align_bounding_box(bbox, origin_image_size, 224)
-                                        for bbox in actual_bboxes]
+        # resized_and_aligned_bboxes = [resize_and_align_bounding_box(bbox, origin_image_size, 224)
+        #                                 for bbox in actual_bboxes]
 
         assert len(input_ids) == max_seq_length
         assert len(input_mask) == max_seq_length
@@ -377,7 +377,7 @@ def convert_examples_to_features(
         assert len(label_ids) == max_seq_length
         assert len(token_boxes) == max_seq_length
         assert len(actual_bboxes) == max_seq_length
-        assert len(resized_and_aligned_bboxes) == max_seq_length
+        # assert len(resized_and_aligned_bboxes) == max_seq_length
 
         if ex_index < 5:
             logger.info("*** Example ***")
@@ -400,8 +400,8 @@ def convert_examples_to_features(
                 actual_bboxes=actual_bboxes,
                 file_name=file_name,
                 page_size=page_size,
-                resized_image=resized_image,
-                resized_and_aligned_bboxes=resized_and_aligned_bboxes
+                # resized_image=resized_image,
+                # resized_and_aligned_bboxes=resized_and_aligned_bboxes
             )
         )
     return features

@@ -23,7 +23,7 @@ __back_dir__ = os.path.join(__dir__, '../..')
 sys.path.append(os.path.abspath(__dir__))
 sys.path.append(os.path.abspath(__back_dir__))
 
-from layoutlm.data.sg_customs import FunsdDataset
+from layoutlm.data.funsd import FunsdDataset
 from layoutlm.modeling.layoutlm import LayoutlmConfig, LayoutlmForTokenClassification
 
 ALL_MODELS = sum(
