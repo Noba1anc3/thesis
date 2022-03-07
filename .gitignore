@@ -12,7 +12,8 @@ detectron2
 *.lock
 layoutlms/layoutlmft/data/
 layoutlms/layoutlmv2/data/
-models
+*.pdiparams
+*.pdmodel
 http.log
 data/test.txt
 data/test_image.txt
