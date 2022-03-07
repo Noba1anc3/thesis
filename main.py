@@ -33,7 +33,6 @@ def change_PaddleOCR():
                                 ch = True
                                 new_line = "from " + "PaddleOCR."+b + " import " + c+'\n'
                                 content[i] = new_line
-                                print(new_line)
                                 break
                 if ch:
                     with open(path, "w") as f:
@@ -97,7 +96,7 @@ if __name__ == "__main__":
         #     convert(rectified_img.shape, bboxes, words, file)
         seg()
         break
-    
+
         # layoutlm_base
         # layoutlmv2_base
         # layoutlmv2_large

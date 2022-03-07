@@ -14,7 +14,7 @@
 
 import argparse
 import os, sys
-from ppocr.utils.utility import initial_logger
+from Direction_Classify.ppocr.utils.utility import initial_logger
 
 logger = initial_logger()
 from paddle.fluid.core import PaddleTensor
