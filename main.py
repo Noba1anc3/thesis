@@ -20,7 +20,7 @@ def downloads():
     cls_2_url = 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar'
     rec_2_url = 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_rec_infer.tar'
 
-    if not os.path.exists("PaddleOCR"): 
+    if not os.path.exists("PaddleOCR-release-2.4.zip"): 
         wget.download(PaddleOCR_url)
         with zipfile.ZipFile('PaddleOCR-release-2.4.zip') as z:
             z.extractall(".")
