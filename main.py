@@ -4,14 +4,30 @@ import numpy as np
 import yaml
 import sys
 import torch
-from Direction_Classify.tool.predict_system import TextSystem
-from data.preprocess import convert, seg
 import wget
 import zipfile
 import tarfile
 import shutil
+import random
 
-# https://mirror.baidu.com/pypi/simple
+from Direction_Classify.tool.predict_system import TextSystem
+from layoutlms.layoutlm.deprecated.examples.seq_labeling.inference import main
+from data.preprocess import convert, seg
+
+
+sem_labels = ['ignore', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
+'INVCommodity.COO', 'INVNo', 'INVCurrency', 'INVPage', 'INVCommodity.Desc', 
+'INVDate', 'INVTermType', 'INVCommodity.Total', 'INVCommodity.Qty', 
+'INVTotalQty', 'INVTotal', 'INVCommodity.Price', 'INVCommodity.ItemNo', 
+'INVCommodity.PartNumber', 'INVCommodity.HSCode', 'INVCommodity.Unit', 
+'INVWtUnit', 'INVCommodity.GW', 'INVCommodity.BoxNumber', 'INVTotalNW', 'INVQtyUom']
+
+
+def sem_colors():
+    colors = []
+    for _ in range(25):
+        colors.append((random.random()*255, random.random()*255,random.random()*255))
+    return colors
 
 
 def prepare_models():
@@ -50,7 +66,9 @@ def prepare_models():
     shutil.copyfile('Direction_Classify/predict_system.py', 'PaddleOCR/tools/infer/predict_system.py')
     shutil.copyfile('Direction_Classify/rec_postprocess.py', 'PaddleOCR/ppocr/postprocess/rec_postprocess.py')
 
-    shutil.copytree('/content/drive/My Drive/layoutlm', 'models/layoutlm')
+    if not os.path.exists('models/layoutlm'):
+        shutil.copytree('/content/drive/My Drive/layoutlm', 'models/layoutlm')
+
 
 def change_PaddleOCR():
     folder = 'PaddleOCR'
@@ -59,7 +77,7 @@ def change_PaddleOCR():
 
     for root, dirs, files in os.walk(folder):
         for file in files:
-            if file.find(".py")>0 and file.find(".pyc") < 0:
+            if file.find(".py") > 0 and file.find(".pyc") < 0:
                 path = os.path.join(root, file)
                 with open(path, "r") as f:
                     content = f.readlines()
@@ -82,11 +100,13 @@ def change_PaddleOCR():
                         f.writelines(content)
                     f.close()
 
+
 def get_OCR_result(image):
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
     bboxes, words = getOCR(dt_boxes, rec_res)
     return bboxes, words
+
 
 def getOCR(dt_boxes, rec_res):
     bboxes = []
@@ -109,12 +129,26 @@ def configParser():
     with open("configs.yaml", "r") as f:
         return yaml.load(f, Loader=yaml.FullLoader)
 
+
 def rectifyImage(img):
-    text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer', GPU=torch.cuda.is_available())
+    text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer', 
+                            GPU=torch.cuda.is_available())
     return text_sys(img)
 
-def get_LayoutLM_result():
-    pass
+
+def get_LayoutLM_result(image, bboxes, words, file, colors):
+    print('-------------------- Making Testing Dataset --------------------')
+    convert(image.shape, bboxes, words, file)
+    seg()
+    print('-------------------- Testing Dataset Made --------------------')
+    preds = main()
+
+    for i in range(len(bboxes)):
+        if not preds[i] == 'O':
+            cv.putText(image, preds[i], bboxes[i], cv.FONT_HERSHEY_COMPLEX, 2, (0, 0, 0))
+        cv.rectangle(image, bboxes[0], bboxes[1], colors[i])
+    
+    return image
 
 def get_LayoutLMv2_base_result():
     pass
@@ -129,17 +163,19 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(__dir__, "PaddleOCR"))
     from PaddleOCR.tools.infer.predict_system import TextSystem as OCRTextSystem
     change_PaddleOCR()
+    colors = sem_colors()
 
     for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
-        print(file, '\n')
+        if not file.find("png") >= 0 and file.find("jpg") >= 0: continue
+        print('--------------------', file, '--------------------', '\n')
         origin_img = cv.imread(os.path.join(config["DocumentFolder"]["Path"], file))
         rectified_img = rectifyImage(origin_img)
         bboxes, words = get_OCR_result(rectified_img)
         if config["ModelType"]["Name"] == "LayoutLM":
-            convert(rectified_img.shape, bboxes, words, file)
-            seg()
+            image = get_LayoutLM_result(rectified_img, bboxes, words, file, colors)
+            cv.imwrite(os.path.join('output', file), image)
+        elif config["ModelType"]["Name"] == "LayoutLMv2":
+            pass
 
-
-        # layoutlm_base
         # layoutlmv2_base
         # layoutlmv2_large

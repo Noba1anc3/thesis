@@ -200,12 +200,7 @@ def main():  # noqa C901
     parser.add_argument(
         "--seed", type=int, default=42, help="random seed for initialization"
     )
-    parser.add_argument(
-        "--local_rank",
-        type=int,
-        default=-1,
-        help="For distributed training: local_rank",
-    )
+
     args = parser.parse_args()
 
     if not os.path.exists(args.output_dir):
@@ -216,16 +211,10 @@ def main():  # noqa C901
         )
 
     # Setup CUDA, GPU & distributed training
-    if args.local_rank == -1 or args.no_cuda:
-        device = torch.device(
-            "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu"
-        )
-        args.n_gpu = 0 if args.no_cuda else torch.cuda.device_count()
-    else:  # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
-        torch.cuda.set_device(args.local_rank)
-        device = torch.device("cuda", args.local_rank)
-        torch.distributed.init_process_group(backend="nccl")
-        args.n_gpu = 1
+    device = torch.device(
+        "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
+    args.n_gpu = 0 if args.no_cuda else torch.cuda.device_count()
+    
     args.device = device
 
     # Set seed
@@ -236,10 +225,6 @@ def main():  # noqa C901
     # Use cross entropy ignore index as padding label id so that only real label ids contribute to the loss later
     pad_token_label_id = CrossEntropyLoss().ignore_index
 
-    # Load pretrained model and tokenizer
-    if args.local_rank not in [-1, 0]:
-        torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
-
     args.model_type = args.model_type.lower()
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     config = config_class.from_pretrained(
@@ -248,57 +233,40 @@ def main():  # noqa C901
         cache_dir=args.cache_dir if args.cache_dir else None,
     )
     tokenizer = tokenizer_class.from_pretrained(
-        args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
-        do_lower_case=args.do_lower_case,
-        cache_dir=args.cache_dir if args.cache_dir else None,
+        args.model_name_or_path, do_lower_case=args.do_lower_case
     )
-    model = model_class.from_pretrained(
-        args.model_name_or_path,
-        from_tf=bool(".ckpt" in args.model_name_or_path),
-        config=config,
-        cache_dir=args.cache_dir if args.cache_dir else None,
-    )
-
+    model = model_class.from_pretrained(args.output_dir)
     model.to(args.device)
 
-    # Evaluation
-    results = {}
-    if args.local_rank in [-1, 0]:
-        tokenizer = tokenizer_class.from_pretrained(
-            args.model_name_or_path, do_lower_case=args.do_lower_case
-        )
-        model = model_class.from_pretrained(args.output_dir)
-        model.to(args.device)
-        predictions = evaluate(
-            args, model, tokenizer, labels, pad_token_label_id, mode="test"
-        )
-        # Save results
-        output_test_predictions_file = os.path.join(args.output_dir, "test_predictions.txt")
-        with open(output_test_predictions_file, "w", encoding="utf8") as writer:
-            with open(
-                os.path.join(args.data_dir, "test.txt"), "r", encoding="utf8"
-            ) as f:
-                example_id = 0
-                for line in f:
-                    if line.startswith("-DOCSTART-") or line == "" or line == "\n":
-                        writer.write(line)
-                        if not predictions[example_id]:
-                            example_id += 1
-                    elif predictions[example_id]:
-                        output_line = (
-                            line.split()[0]
-                            + " "
-                            + predictions[example_id].pop(0)
-                            + "\n"
-                        )
-                        writer.write(output_line)
-                    else:
-                        print(
-                            "Maximum sequence length exceeded: No prediction for '%s'.",
-                            line.split()[0],
-                        )
+    predictions = evaluate(
+        args, model, tokenizer, labels, pad_token_label_id, mode="test")
 
-    return results
+    output_test_predictions_file = os.path.join(args.output_dir, "test_predictions.txt")
+    with open(output_test_predictions_file, "w", encoding="utf8") as writer:
+        with open(
+            os.path.join(args.data_dir, "test.txt"), "r", encoding="utf8"
+        ) as f:
+            example_id = 0
+            for line in f:
+                if line.startswith("-DOCSTART-") or line == "" or line == "\n":
+                    writer.write(line)
+                    if not predictions[example_id]:
+                        example_id += 1
+                elif predictions[example_id]:
+                    output_line = (
+                        line.split()[0]
+                        + " "
+                        + predictions[example_id].pop(0)
+                        + "\n"
+                    )
+                    writer.write(output_line)
+                else:
+                    print(
+                        "Maximum sequence length exceeded: No prediction for '%s'.",
+                        line.split()[0],
+                    )
+
+    return predictions
 
 
 if __name__ == "__main__":
