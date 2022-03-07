@@ -16,11 +16,10 @@ import sys
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(__dir__)
-sys.path.append(os.path.abspath(os.path.join(__dir__, '../..')))
+sys.path.append(os.path.abspath(os.path.join(__dir__, '..')))
 
-import tools.infer.utility as utility
+import tool.utility as utility
 from ppocr.utils.utility import initial_logger
-
 logger = initial_logger()
 from ppocr.utils.utility import get_image_file_list, check_and_read_gif
 import cv2
@@ -67,7 +66,6 @@ class TextClassifier(object):
     def __call__(self, img_list):
         img_list = copy.deepcopy(img_list)
         img_num = len(img_list)
-
         # Calculate the aspect ratio of all text bars
         width_list = []
         for img in img_list:
@@ -149,7 +147,7 @@ def main(args):
         if not flag:
             img = cv2.imread(image_file)
         if img is None:
-            logger.info("error in loading image:{}".format(image_file))
+            # logger.info("error in loading image:{}".format(image_file))
             continue
         valid_image_file_list.append(image_file)
         img_list.append(img)

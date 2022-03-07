@@ -7,17 +7,19 @@ import math
 import numpy as np
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
-__back_dir__ = os.path.join(__dir__, '../..')
+__back_dir__ = os.path.join(__dir__, '..')
+
 sys.path.append(__dir__)
 sys.path.append(os.path.abspath(__back_dir__))
 
-import tools.infer.utility as utility
-import tools.infer.predict_det as predict_det
-import tools.infer.predict_cls as predict_cls
 
-from Direction_Classify.ppocr.utils.utility import initial_logger
-from Direction_Classify.tools.infer.correct import angle_correction, rotate_bound
-from Direction_Classify.ppocr.utils.utility import get_image_file_list, check_and_read_gif
+import tool.utility as utility
+import tool.predict_det as predict_det
+import tool.predict_cls as predict_cls
+
+from ppocr.utils.utility import initial_logger
+from tool.correct import angle_correction, rotate_bound
+from ppocr.utils.utility import get_image_file_list, check_and_read_gif
 
 logger = initial_logger()
 

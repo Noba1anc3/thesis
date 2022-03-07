@@ -12,3 +12,8 @@ detectron2
 *.lock
 layoutlms/layoutlmft/data/
 layoutlms/layoutlmv2/data/
+models
+data/images/id.jpg
+data/test
+http.log
+

@@ -15,7 +15,7 @@ import os
 import sys
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(__dir__)
-sys.path.append(os.path.abspath(os.path.join(__dir__, '../..')))
+sys.path.append(os.path.abspath(os.path.join(__dir__, '..')))
 
 import cv2
 import numpy as np
@@ -24,7 +24,7 @@ import sys
 
 import paddle.fluid as fluid
 
-import tools.infer.utility as utility
+import tool.utility as utility
 from ppocr.utils.utility import initial_logger
 logger = initial_logger()
 from ppocr.utils.utility import get_image_file_list, check_and_read_gif
