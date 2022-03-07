@@ -3,6 +3,7 @@ import cv2 as cv
 import numpy as np
 import yaml
 import sys
+import torch
 from Direction_Classify.tool.predict_system import TextSystem
 from data.preprocess import convert, seg
 import wget
@@ -18,25 +19,24 @@ def downloads():
     cls_2_url = 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar'
     rec_2_url = 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_rec_infer.tar'
 
-    wget.download(PaddleOCR_url)
-    wget.download(det_2_url)
-    wget.download(cls_2_url)
-    wget.download(rec_2_url)
-
-    with zipfile.ZipFile('PaddleOCR-release-2.4.zip') as z:
-        z.extractall(".")
-    os.rename("PaddleOCR-release-2.4", "PaddleOCR")
-    
-    with tarfile.TarFile('ch_ppocr_server_v2.0_det_infer.tar') as t:
-        t.extractall("./models")
-        t.extractall("./Direction_Classify/inference")
-
-    with tarfile.TarFile('ch_ppocr_server_v2.0_rec_infer.tar') as t:
-        t.extractall("./models")
-
-    with tarfile.TarFile('ch_ppocr_server_v2.0_det_infer.tar') as t:
-        t.extractall("./models")
-        t.extractall("./Direction_Classify/inference")
+    if not os.path.exists("PaddleOCR-release-2.4"): 
+        wget.download(PaddleOCR_url)
+        with zipfile.ZipFile('PaddleOCR-release-2.4.zip') as z:
+            z.extractall(".")
+        os.rename("PaddleOCR-release-2.4", "PaddleOCR")
+    if not os.path.exists("ch_ppocr_server_v2.0_det_infer.tar"): 
+        wget.download(det_2_url)
+        with tarfile.TarFile('ch_ppocr_server_v2.0_det_infer.tar') as t:
+            t.extractall("./models")
+            t.extractall("./Direction_Classify/inference")
+    if not os.path.exists("ch_ppocr_server_v2.0_rec_infer.tar"): 
+        wget.download(rec_2_url)
+        with tarfile.TarFile('ch_ppocr_server_v2.0_rec_infer.tar') as t:
+            t.extractall("./models")
+    if not os.path.exists("ch_ppocr_mobile_v2.0_cls_infer.tar"): 
+        wget.download(cls_2_url)
+        with tarfile.TarFile('ch_ppocr_mobile_v2.0_cls_infer.tar') as t:
+            t.extractall("./Direction_Classify/inference")
 
 def change_PaddleOCR():
     folder = 'PaddleOCR'
@@ -96,7 +96,7 @@ def configParser():
         return yaml.load(f, Loader=yaml.FullLoader)
 
 def rectifyImage(img):
-    text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer', GPU=False)
+    text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer', GPU=torch.cuda.is_available())
     return text_sys(img)
 
 def get_LayoutLM_result():

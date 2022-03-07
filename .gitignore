@@ -19,3 +19,6 @@ data/test.txt
 data/test_image.txt
 data/test_box.txt
 *.tmp
+models/._ch_ppocr_server_v2.0_rec_infer
+models/ch_ppocr_server_v2.0_det_infer/
+models/ch_ppocr_server_v2.0_rec_infer/
