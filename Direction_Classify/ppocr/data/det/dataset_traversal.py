@@ -20,10 +20,10 @@ import functools
 import numpy as np
 import cv2
 import string
-from ppocr.utils.utility import initial_logger
+from Direction_Classify.ppocr.utils.utility import initial_logger
 logger = initial_logger()
-from ppocr.utils.utility import create_module
-from ppocr.utils.utility import get_image_file_list
+from Direction_Classify.ppocr.utils.utility import create_module
+from Direction_Classify.ppocr.utils.utility import get_image_file_list
 import time
 
 

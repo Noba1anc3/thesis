@@ -5,3 +5,4 @@ lmdb
 tqdm
 numpy
 paddlepaddle==2.2
+pyyaml==5.1

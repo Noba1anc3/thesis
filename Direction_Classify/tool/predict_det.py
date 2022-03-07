@@ -15,7 +15,7 @@ import os
 import sys
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(__dir__)
-sys.path.append(os.path.abspath(os.path.join(__dir__, '..')))
+# sys.path.append(os.path.abspath(os.path.join(__dir__, '..')))
 
 import cv2
 import numpy as np
@@ -24,16 +24,16 @@ import sys
 
 import paddle.fluid as fluid
 
-import tool.utility as utility
-from ppocr.utils.utility import initial_logger
+import Direction_Classify.tool.utility as utility
+from Direction_Classify.ppocr.utils.utility import initial_logger
 logger = initial_logger()
-from ppocr.utils.utility import get_image_file_list, check_and_read_gif
-from ppocr.data.det.sast_process import SASTProcessTest
-from ppocr.data.det.east_process import EASTProcessTest
-from ppocr.data.det.db_process import DBProcessTest
-from ppocr.postprocess.db_postprocess import DBPostProcess
-from ppocr.postprocess.east_postprocess import EASTPostPocess
-from ppocr.postprocess.sast_postprocess import SASTPostProcess
+from Direction_Classify.ppocr.utils.utility import get_image_file_list, check_and_read_gif
+from Direction_Classify.ppocr.data.det.sast_process import SASTProcessTest
+from Direction_Classify.ppocr.data.det.east_process import EASTProcessTest
+from Direction_Classify.ppocr.data.det.db_process import DBProcessTest
+from Direction_Classify.ppocr.postprocess.db_postprocess import DBPostProcess
+from Direction_Classify.ppocr.postprocess.east_postprocess import EASTPostPocess
+from Direction_Classify.ppocr.postprocess.sast_postprocess import SASTPostProcess
 
 
 class TextDetector(object):

@@ -83,7 +83,7 @@ class InputExample(object):
     """A single training/test example for token classification."""
 
     def __init__(self, guid, words, labels, boxes, actual_bboxes, 
-        file_name, page_size, resized_image, origin_image_size):
+        file_name, page_size):# , resized_image, origin_image_size):
         """Constructs a InputExample.
 
         Args:
@@ -99,8 +99,8 @@ class InputExample(object):
         self.actual_bboxes = actual_bboxes
         self.file_name = file_name
         self.page_size = page_size
-        self.resized_image = resized_image
-        self.origin_image_size = origin_image_size
+        # self.resized_image = resized_image
+        # self.origin_image_size = origin_image_size
 
 
 class InputFeatures(object):

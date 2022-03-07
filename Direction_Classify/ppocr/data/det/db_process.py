@@ -17,7 +17,7 @@ import cv2
 import numpy as np
 import json
 import sys
-from ppocr.utils.utility import initial_logger, check_and_read_gif
+from Direction_Classify.ppocr.utils.utility import initial_logger, check_and_read_gif
 logger = initial_logger()
 
 from .data_augment import AugmentData
