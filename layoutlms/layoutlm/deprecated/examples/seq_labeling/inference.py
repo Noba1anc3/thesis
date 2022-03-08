@@ -235,8 +235,11 @@ def inference():  # noqa C901
         args, model, tokenizer, labels, pad_token_label_id, mode="test")
     
     preds = []
-    for pred in predictions:
-        preds += pred
+    for prediction in predictions:
+        for i, pred in enumerate(prediction):
+            if pred != 'O': prediction[i] = pred[2:]
+            else: prediction[i] = ''
+        preds += prediction
 
     # output_test_predictions_file = os.path.join(args.output_dir, "test_predictions.txt")
     # with open(output_test_predictions_file, "w", encoding="utf8") as writer:

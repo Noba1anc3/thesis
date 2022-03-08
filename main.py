@@ -38,6 +38,7 @@ def sem_colors():
     for _ in range(25):
         colors.append((random.randint(0, 255), random.randint(0, 255),random.randint(0, 255)))
     return colors
+colors = sem_colors()
 
 
 def prepare_models():
@@ -186,7 +187,7 @@ def organizeJson(bboxes, words, preds):
     return data
 
 
-def get_LayoutLM_result(image, bboxes, words, file, colors):
+def get_LayoutLM_result(image, bboxes, words, file):
     print('-------------------- Making Testing Dataset --------------------')
     convert(image.shape, bboxes, words, file)
     seg()
@@ -213,9 +214,10 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(__dir__, "PaddleOCR"))
     from PaddleOCR.tools.infer.predict_system import TextSystem as OCRTextSystem
     change_PaddleOCR()
-    colors = sem_colors()
+
     if not os.path.exists('output'): os.mkdir('output')
-    if os.listdir(config["DocumentFolder"]["Path"]) == []: print("No Data in Document Folder")
+    if not os.path.exists(config["DocumentFolder"]["Path"]) == []: print("No Data in Document Folder")
+    
     for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
         if not file.find("png") >= 0 and not file.find("jpg") >= 0 \
             and not file.find("jpeg") >= 0: 
@@ -225,11 +227,13 @@ if __name__ == "__main__":
         origin_img = cv.imread(filePath)
         rectified_img = rectifyImage(origin_img)
         bboxes, words = get_OCR_result(rectified_img, filePath)
+        
         if config["ModelType"]["Name"] == "LayoutLM":
-            img, jsn = get_LayoutLM_result(rectified_img, bboxes, words, file, colors)
-            cv.imwrite(os.path.join('output', file), img)
+            img, jsn = get_LayoutLM_result(rectified_img, bboxes, words, file)
+            
         elif config["ModelType"]["Name"] == "LayoutLMv2":
             pass
-
+        
+        cv.imwrite(os.path.join('output', file), img)
         # layoutlmv2_base
         # layoutlmv2_large
