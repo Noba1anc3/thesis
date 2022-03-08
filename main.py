@@ -181,7 +181,9 @@ if __name__ == "__main__":
     colors = sem_colors()
 
     for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
-        if not file.find("png") >= 0 and not file.find("jpg") >= 0: continue
+        if not file.find("png") >= 0 and not file.find("jpg") >= 0 \
+            and not file.find("jpeg") >= 0 and not file.find("gif") >= 0: 
+            continue
         print('--------------------', file, '--------------------', '\n')
         filePath = os.path.join(config["DocumentFolder"]["Path"], file)
         origin_img = cv.imread(filePath)
