@@ -37,6 +37,8 @@ class TextSystem(object):
 
         self.text_detector = predict_det.TextDetector(args)
         self.text_classifier = predict_cls.TextClassifier(args)
+        self.PhaseI = PhaseI
+        self.PhaseII = PhaseII
 
     def cal_ver_hor_edge(self, dt_box):
         """
@@ -138,12 +140,13 @@ class TextSystem(object):
 
     def __call__(self, img, cls_box_num=10):
         print("Image Rotation")
-        img, elapse = angle_correction(img)
-        # with open('result.txt', 'a+') as f:
-        #     f.write(' ' + '%.2f' % (elapse * 1000))
+        if self.PhaseI:
+            img, elapse = angle_correction(img)
+            # with open('result.txt', 'a+') as f:
+            #     f.write(' ' + '%.2f' % (elapse * 1000))
 
-        print("   Elapsed : {}ms"
-              .format('%.2f' % (elapse * 1000)))
+            print("   Elapsed : {}ms"
+                .format('%.2f' % (elapse * 1000)))
         ori_im = img.copy()
 
         print("Text Detection")
@@ -206,11 +209,13 @@ class TextSystem(object):
             print('Final Direction : Right\n')
             with open('result.txt', 'a+') as f:
                 f.write(' ' + str(3) + '\n')
+            if not self.PhaseII: return ori_im
             return np.array(rotate_bound(ori_im, 90))[0]
         elif left_right >= up_down and lr == 0:
             print('Final Direction : Left\n')
             with open('result.txt', 'a+') as f:
                 f.write(' ' + str(1) + '\n')
+            if not self.PhaseII: return ori_im
             return np.array(rotate_bound(ori_im, 270))[0]
         elif left_right < up_down and lr == 1:
             print('Final Direction : Up\n')
@@ -221,6 +226,7 @@ class TextSystem(object):
             print('Final Direction : Down\n')
             with open('result.txt', 'a+') as f:
                 f.write(' ' + str(2) + '\n')
+            if not self.PhaseII: return ori_im
             return np.array(rotate_bound(ori_im, 180))[0]
 
 

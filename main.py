@@ -184,7 +184,17 @@ def drawImage(image, bboxes, preds, sem_labels, colors):
 
 
 def organizeJson(bboxes, words, preds):
-    data = {}
+    data = {"items":[]}
+    for i in range(len(bboxes)):
+        bbox = bboxes[i]
+        word = words[i]
+        pred = preds[i]
+
+        data["items"].append({
+                            "word": word,
+                            "sematic": pred,
+                            "location": bbox
+                            })
     return data
 
 
@@ -217,13 +227,18 @@ if __name__ == "__main__":
     change_PaddleOCR()
 
     if not os.path.exists('output'): os.mkdir('output')
-    if not os.path.exists(config["DocumentFolder"]["Path"]) == []: print("No Data in Document Folder")
+    if not os.path.exists('output/image'): os.mkdir('output/image')
+    if not os.path.exists('output/json'): os.mkdir('output/json')
+    if not os.path.exists(config["DocumentFolder"]["Path"]) == []: 
+        print("No Data in Document Folder")
     
     for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
         if not file.find("png") >= 0 and not file.find("jpg") >= 0 \
             and not file.find("jpeg") >= 0: 
             continue
+        
         print('--------------------', file, '--------------------', '\n')
+        
         filePath = os.path.join(config["DocumentFolder"]["Path"], file)
         origin_img = cv.imread(filePath)
         rectified_img = rectifyImage(origin_img)
@@ -231,10 +246,12 @@ if __name__ == "__main__":
         
         if config["ModelType"]["Name"] == "LayoutLM":
             img, jsn = get_LayoutLM_result(rectified_img, bboxes, words, file)
-            
         elif config["ModelType"]["Name"] == "LayoutLMv2":
-            pass
-        
-        cv.imwrite(os.path.join('output', file), img)
-        # layoutlmv2_base
-        # layoutlmv2_large
+            if config["ModelType"]["Base"]:
+                pass
+            else:
+                pass
+
+        cv.imwrite(os.path.join('output/image', file), img)
+        with open(os.path.join('output/json', file), 'w') as f:
+            json.dump(jsn, f)
