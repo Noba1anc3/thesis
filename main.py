@@ -155,13 +155,7 @@ def rectifyImage(img):
     return img
 
 
-def get_LayoutLM_result(image, bboxes, words, file, colors):
-    print('-------------------- Making Testing Dataset --------------------')
-    convert(image.shape, bboxes, words, file)
-    seg()
-    print('-------------------- Testing Dataset Made --------------------')
-    preds = inference()
-    print(len(bboxes), len(preds))
+def drawImage(image, bboxes, preds):
     for i in range(len(bboxes)):
         if not preds[i] == 'O':
             preds[i] = preds[i][2:]
@@ -169,6 +163,24 @@ def get_LayoutLM_result(image, bboxes, words, file, colors):
         color = colors[sem_labels_Upper.index(preds[i])]
         cv.rectangle(image, tuple(bboxes[i][0]), tuple(bboxes[i][1]), color)
     return image
+
+
+def organizeJson(bboxes, words, preds):
+    data = {}
+    return data
+
+
+def get_LayoutLM_result(image, bboxes, words, file):
+    print('-------------------- Making Testing Dataset --------------------')
+    convert(image.shape, bboxes, words, file)
+    seg()
+    print('-------------------- Testing Dataset Made --------------------')
+    preds = inference()
+    pred_image = drawImage(image, bboxes, preds)
+    pred_json = organizeJson(bboxes, words, preds)
+
+    return pred_image, pred_json
+
 
 def get_LayoutLMv2_base_result():
     pass
@@ -185,7 +197,7 @@ if __name__ == "__main__":
     change_PaddleOCR()
     colors = sem_colors()
     if not os.path.exists('output'): os.mkdir('output')
-
+    if os.listdir(config["DocumentFolder"]["Path"]) == []: print("No Data in Document Folder")
     for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
         if not file.find("png") >= 0 and not file.find("jpg") >= 0 \
             and not file.find("jpeg") >= 0: 
@@ -196,8 +208,8 @@ if __name__ == "__main__":
         rectified_img = rectifyImage(origin_img)
         bboxes, words = get_OCR_result(rectified_img, filePath)
         if config["ModelType"]["Name"] == "LayoutLM":
-            image = get_LayoutLM_result(rectified_img, bboxes, words, file, colors)
-            cv.imwrite(os.path.join('output', file), image)
+            img, jsn = get_LayoutLM_result(rectified_img, bboxes, words, file)
+            cv.imwrite(os.path.join('output', file), img)
         elif config["ModelType"]["Name"] == "LayoutLMv2":
             pass
 
