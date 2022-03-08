@@ -237,7 +237,7 @@ def inference():  # noqa C901
     preds = []
     for pred in predictions:
         preds += pred
-        
+
     # output_test_predictions_file = os.path.join(args.output_dir, "test_predictions.txt")
     # with open(output_test_predictions_file, "w", encoding="utf8") as writer:
     #     with open(
@@ -263,8 +263,8 @@ def inference():  # noqa C901
     #                     line.split()[0],
     #                 )
 
-    return predictions
+    return preds
 
 
 if __name__ == "__main__":
-    main()
+    inference()

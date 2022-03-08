@@ -4,3 +4,10 @@ DocumentFolder:
 ModelType:
   Name: LayoutLM
   Base: True
+
+Json:
+  Use: True
+
+Rotate:
+  PhaseI: True
+  PhaseII: True

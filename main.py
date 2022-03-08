@@ -25,6 +25,13 @@ sem_labels = ['O', 'INVConsignee', 'INVShipper', 'INVTotalGW',
 
 sem_labels_Upper = [sem_label.upper() for sem_label in sem_labels]
 
+def configParser():
+    with open("configs.yaml", "r") as f:
+        return yaml.load(f, Loader=yaml.FullLoader)
+
+config = configParser()
+
+
 def sem_colors():
     colors = []
     for _ in range(25):
@@ -115,7 +122,7 @@ def readJson(jsnPath):
 
 def get_OCR_result(image, filePath):
     jsnFilePath = filePath[:-3].replace("images", "json").replace("image", "json") + 'json'
-    if os.path.exists(jsnFilePath): return readJson(jsnFilePath)
+    if config["Json"]["Use"] and os.path.exists(jsnFilePath): return readJson(jsnFilePath)
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
     bboxes, words = getOCR(dt_boxes, rec_res)
@@ -139,15 +146,13 @@ def getOCR(dt_boxes, rec_res):
     return bboxes, words
 
 
-def configParser():
-    with open("configs.yaml", "r") as f:
-        return yaml.load(f, Loader=yaml.FullLoader)
-
-
 def rectifyImage(img):
-    text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer', 
-                            GPU=torch.cuda.is_available())
-    return text_sys(img)
+    if not config["Json"]["Use"] and \
+        config["Rotate"]["PhaseI"] and config["Rotate"]["PhaseII"]:
+        text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer', 
+                                GPU=torch.cuda.is_available())
+        return text_sys(img)
+    return img
 
 
 def get_LayoutLM_result(image, bboxes, words, file, colors):
@@ -171,8 +176,8 @@ def get_LayoutLMv2_base_result():
 def get_LayoutLMv2_large_result():
     pass
 
+
 if __name__ == "__main__":
-    config = configParser()
     prepare_models()
     __dir__ = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(os.path.join(__dir__, "PaddleOCR"))
