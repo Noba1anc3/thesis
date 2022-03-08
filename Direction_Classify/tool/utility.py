@@ -212,7 +212,6 @@ def draw_ocr_box_txt(image,
                      colors,
                      scores=None,
                      drop_score=0.01):
-    sem_labels_Upper = [sem_label.upper() for sem_label in sem_labels]
     image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     h, w = image.height, image.width
     img_left = image.copy()
@@ -224,10 +223,7 @@ def draw_ocr_box_txt(image,
     draw_left = ImageDraw.Draw(img_left)
     draw_right = ImageDraw.Draw(img_right)
     for idx, (box, txt) in enumerate(zip(boxes, txts)):
-        color = colors[sem_labels_Upper.index(txts[idx])]
-        txt = sem_labels[sem_labels_Upper.index(txts[idx])]
-        if not txt == '': txt = txt[3:]
-        if txt.find('.') >= 0: txt = "C." + txt.split(".")[1]
+        color = colors[sem_labels.index(txts[idx])]
         draw_left.polygon(box, fill=color)
         if not txt == '':
             draw_right.polygon(

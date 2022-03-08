@@ -17,7 +17,7 @@ from Direction_Classify.tool.utility import draw_ocr_box_txt
 from data.preprocess import convert, seg
 
 
-sem_labels = ['', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
+sem_labels = ['O', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
 'INVCommodity.COO', 'INVNo', 'INVCurrency', 'INVPage', 'INVCommodity.Desc', 
 'INVDate', 'INVTermType', 'INVCommodity.Total', 'INVCommodity.Qty', 
 'INVTotalQty', 'INVTotal', 'INVCommodity.Price', 'INVCommodity.ItemNo', 
@@ -34,8 +34,9 @@ config = configParser()
 
 def sem_colors():
     colors = []
-    for _ in range(25):
+    for _ in range(24):
         colors.append((random.randint(0, 255), random.randint(0, 255),random.randint(0, 255)))
+    colors = (100, 100, 100) + colors
     return colors
 colors = sem_colors()
 
@@ -151,7 +152,7 @@ def getOCR(dt_boxes, rec_res):
 def rectifyImage(img):
     if not config["Json"]["Use"]:
         text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer',
-                              CLS_MODEL_DIR='ch_ppocr_mobile_v2.0_cls_infer',
+                              # CLS_MODEL_DIR='ch_ppocr_mobile_v2.0_cls_infer',
                                 GPU=torch.cuda.is_available(),
                                 PhaseI = config["Rotate"]["PhaseI"],
                                 PhaseII = config["Rotate"]["PhaseII"])
@@ -198,6 +199,21 @@ def organizeJson(bboxes, words, preds):
     return data
 
 
+def deal_with_preds(preds):
+    sem_labels_Upper = [sem_label.upper() for sem_label in sem_labels]
+    
+    for i, pred in enumerate(preds):
+        index = sem_labels_Upper.index(pred)
+        preds[i] = sem_labels[index]
+        if preds[i] != 'O': preds[i] = preds[i][5:]
+        else: preds[i] = ''
+
+        if preds[i].find(".") >= 0: 
+            preds[i] = "C." + preds[i].split(".")[1]
+
+    return preds
+
+
 def get_LayoutLM_result(image, bboxes, words, file):
     print('-------------------- Making Testing Dataset --------------------')
     convert(image.shape, bboxes, words, file)
@@ -205,6 +221,7 @@ def get_LayoutLM_result(image, bboxes, words, file):
     print('-------------------- Testing Dataset Made --------------------')
     preds = inference()
     
+    preds = deal_with_preds(preds)
     pred_image = drawImage(image, bboxes, preds, 
                             sem_labels, colors)
     pred_json = organizeJson(bboxes, words, preds)
@@ -232,7 +249,7 @@ if __name__ == "__main__":
     if not os.path.exists(config["DocumentFolder"]["Path"]) == []: 
         print("No Data in Document Folder")
     
-    for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
+    for file in os.listdir(config["DocumentFolder"]["Path"]):
         if not file.find("png") >= 0 and not file.find("jpg") >= 0 \
             and not file.find("jpeg") >= 0: 
             continue
@@ -253,5 +270,5 @@ if __name__ == "__main__":
                 pass
 
         cv.imwrite(os.path.join('output/image', file), img)
-        with open(os.path.join('output/json', file), 'w') as f:
+        with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
             json.dump(jsn, f)
