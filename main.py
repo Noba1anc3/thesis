@@ -15,18 +15,19 @@ from layoutlms.layoutlm.deprecated.examples.seq_labeling.inference import infere
 from data.preprocess import convert, seg
 
 
-sem_labels = ['ignore', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
+sem_labels = ['O', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
 'INVCommodity.COO', 'INVNo', 'INVCurrency', 'INVPage', 'INVCommodity.Desc', 
 'INVDate', 'INVTermType', 'INVCommodity.Total', 'INVCommodity.Qty', 
 'INVTotalQty', 'INVTotal', 'INVCommodity.Price', 'INVCommodity.ItemNo', 
 'INVCommodity.PartNumber', 'INVCommodity.HSCode', 'INVCommodity.Unit', 
 'INVWtUnit', 'INVCommodity.GW', 'INVCommodity.BoxNumber', 'INVTotalNW', 'INVQtyUom']
 
+sem_labels_Upper = [sem_label.upper() for sem_label in sem_labels]
 
 def sem_colors():
     colors = []
     for _ in range(25):
-        colors.append((random.random()*255, random.random()*255,random.random()*255))
+        colors.append((random.randint(0, 255), random.randint(0, 255),random.randint(0, 255)))
     return colors
 
 
@@ -144,9 +145,10 @@ def get_LayoutLM_result(image, bboxes, words, file, colors):
     preds = inference()[0]
     for i in range(len(bboxes)):
         if not preds[i] == 'O':
-            cv.putText(image, preds[i], bboxes[i][0], cv.FONT_HERSHEY_COMPLEX, 2, (0, 0, 0))
-        cv.rectangle(image, bboxes[i][0], bboxes[i][1], colors[i])
-    
+            preds[i] = preds[i][2:]
+            cv.putText(image, preds[i], tuple(bboxes[i][0]), cv.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
+        color = colors[sem_labels_Upper.index(preds[i])]
+        cv.rectangle(image, tuple(bboxes[i][0]), tuple(bboxes[i][1]), color)
     return image
 
 def get_LayoutLMv2_base_result():
