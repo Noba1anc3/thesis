@@ -207,9 +207,12 @@ def draw_ocr(image,
 def draw_ocr_box_txt(image,
                      boxes,
                      txts,
+                     font_path,
+                     sem_labels, 
+                     colors,
                      scores=None,
-                     drop_score=0.5,
-                     font_path="./doc/simfang.ttf"):
+                     drop_score=0.01):
+    image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     h, w = image.height, image.width
     img_left = image.copy()
     img_right = Image.new('RGB', (w, h), (255, 255, 255))
@@ -220,10 +223,12 @@ def draw_ocr_box_txt(image,
     draw_left = ImageDraw.Draw(img_left)
     draw_right = ImageDraw.Draw(img_right)
     for idx, (box, txt) in enumerate(zip(boxes, txts)):
+        if txt == 'O': txt = ''
         if scores is not None and scores[idx] < drop_score:
             continue
-        color = (random.randint(0, 255), random.randint(0, 255),
-                 random.randint(0, 255))
+        # color = (random.randint(0, 255), random.randint(0, 255),
+        #          random.randint(0, 255))
+        color = colors[sem_labels.index(txts[idx])]
         draw_left.polygon(box, fill=color)
         draw_right.polygon(
             [

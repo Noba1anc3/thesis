@@ -13,6 +13,7 @@ import random
 
 from Direction_Classify.tool.predict_system import TextSystem
 from layoutlms.layoutlm.deprecated.examples.seq_labeling.inference import inference
+from Direction_Classify.tool.utility import draw_ocr_box_txt
 from data.preprocess import convert, seg
 
 
@@ -126,6 +127,7 @@ def get_OCR_result(image, filePath):
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
     bboxes, words = getOCR(dt_boxes, rec_res)
+
     return bboxes, words
 
 
@@ -155,7 +157,7 @@ def rectifyImage(img):
     return img
 
 
-def drawImage(image, bboxes, preds):
+def drawImage_CV(image, bboxes, preds):
     for i in range(len(bboxes)):
         if not preds[i] == 'O':
             preds[i] = preds[i][2:]
@@ -165,18 +167,34 @@ def drawImage(image, bboxes, preds):
     return image
 
 
+def drawImage(image, bboxes, preds, sem_labels, colors):
+    bboxes_four_pts = []
+    for bbox in bboxes:
+        bbox_four_pts = np.array([[bbox[0][0], bbox[0][1]], \
+                                [bbox[1][0], bbox[0][1]], \
+                                [bbox[1][0], bbox[1][1]], \
+                                [bbox[0][0], bbox[1][1]]],
+                                dtype="float32")
+        bboxes_four_pts.append(bbox_four_pts)
+    pred_image = draw_ocr_box_txt(image, bboxes_four_pts, preds,
+                './Direction_Classify/latin.ttf', sem_labels, colors)
+    return pred_image
+
+
 def organizeJson(bboxes, words, preds):
     data = {}
     return data
 
 
-def get_LayoutLM_result(image, bboxes, words, file):
+def get_LayoutLM_result(image, bboxes, words, file, colors):
     print('-------------------- Making Testing Dataset --------------------')
     convert(image.shape, bboxes, words, file)
     seg()
     print('-------------------- Testing Dataset Made --------------------')
     preds = inference()
-    pred_image = drawImage(image, bboxes, preds)
+    
+    pred_image = drawImage(image, bboxes, preds, 
+                            sem_labels_Upper, colors)
     pred_json = organizeJson(bboxes, words, preds)
 
     return pred_image, pred_json
@@ -208,7 +226,7 @@ if __name__ == "__main__":
         rectified_img = rectifyImage(origin_img)
         bboxes, words = get_OCR_result(rectified_img, filePath)
         if config["ModelType"]["Name"] == "LayoutLM":
-            img, jsn = get_LayoutLM_result(rectified_img, bboxes, words, file)
+            img, jsn = get_LayoutLM_result(rectified_img, bboxes, words, file, colors)
             cv.imwrite(os.path.join('output', file), img)
         elif config["ModelType"]["Name"] == "LayoutLMv2":
             pass

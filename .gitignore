@@ -28,3 +28,5 @@ ch_ppocr_server_v2.0_rec_infer.tar
 ch_ppocr_mobile_v2.0_cls_infer.tar
 PaddleOCR-release-2.4.zip
 models/layoutlm
+models/layoutlmv2_base
+models/layoutlmv2_large
