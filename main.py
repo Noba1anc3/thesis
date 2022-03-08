@@ -17,7 +17,7 @@ from Direction_Classify.tool.utility import draw_ocr_box_txt
 from data.preprocess import convert, seg
 
 
-sem_labels = ['O', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
+sem_labels = ['', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
 'INVCommodity.COO', 'INVNo', 'INVCurrency', 'INVPage', 'INVCommodity.Desc', 
 'INVDate', 'INVTermType', 'INVCommodity.Total', 'INVCommodity.Qty', 
 'INVTotalQty', 'INVTotal', 'INVCommodity.Price', 'INVCommodity.ItemNo', 
