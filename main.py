@@ -114,7 +114,7 @@ def readJson(jsnPath):
 
 
 def get_OCR_result(image, filePath):
-    jsnFilePath = filePath[:-3].replace("images", "json") + 'json'
+    jsnFilePath = filePath[:-3].replace("images", "json").replace("image", "json") + 'json'
     if os.path.exists(jsnFilePath): return readJson(jsnFilePath)
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
@@ -155,7 +155,7 @@ def get_LayoutLM_result(image, bboxes, words, file, colors):
     convert(image.shape, bboxes, words, file)
     seg()
     print('-------------------- Testing Dataset Made --------------------')
-    preds = inference()[0]
+    preds = inference()
     print(len(bboxes), len(preds))
     for i in range(len(bboxes)):
         if not preds[i] == 'O':
@@ -179,10 +179,11 @@ if __name__ == "__main__":
     from PaddleOCR.tools.infer.predict_system import TextSystem as OCRTextSystem
     change_PaddleOCR()
     colors = sem_colors()
+    if not os.path.exists('output'): os.mkdir('output')
 
     for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
         if not file.find("png") >= 0 and not file.find("jpg") >= 0 \
-            and not file.find("jpeg") >= 0 and not file.find("gif") >= 0: 
+            and not file.find("jpeg") >= 0: 
             continue
         print('--------------------', file, '--------------------', '\n')
         filePath = os.path.join(config["DocumentFolder"]["Path"], file)

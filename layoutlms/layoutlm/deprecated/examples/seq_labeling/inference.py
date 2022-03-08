@@ -74,9 +74,9 @@ def evaluate(args, model, tokenizer, labels, pad_token_label_id, mode, prefix=""
     )
 
     # Eval!
-    print("***** Running evaluation %s *****", prefix)
-    print("  Num examples = %d", len(eval_dataset))
-    print("  Batch size = %d", args.eval_batch_size)
+    print("***** Running evaluation *****")
+    print("  Num examples =", len(eval_dataset))
+    print("  Batch size =", args.eval_batch_size)
 
     preds = None
     out_label_ids = None
@@ -234,6 +234,10 @@ def inference():  # noqa C901
     predictions = evaluate(
         args, model, tokenizer, labels, pad_token_label_id, mode="test")
     
+    preds = []
+    for pred in predictions:
+        preds += pred
+        
     # output_test_predictions_file = os.path.join(args.output_dir, "test_predictions.txt")
     # with open(output_test_predictions_file, "w", encoding="utf8") as writer:
     #     with open(
