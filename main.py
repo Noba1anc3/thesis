@@ -1,6 +1,7 @@
 import os
 import cv2 as cv
 import numpy as np
+import json
 import yaml
 import sys
 import torch
@@ -102,7 +103,19 @@ def change_PaddleOCR():
                     f.close()
 
 
-def get_OCR_result(image):
+def readJson(jsnPath):
+    jsonfile = json.load(open(jsnPath))
+    bboxes, words = [], []
+    for item in jsonfile["items"]:
+        key = list(item.keys())[0]
+        bboxes.append(item[key]["locations"])
+        words.append(item[key]["value"])
+    return bboxes, words
+
+
+def get_OCR_result(image, filePath):
+    jsnFilePath = filePath[:-3].replace("images", "json") + 'json'
+    if os.path.exists(jsnFilePath): return readJson(jsnFilePath)
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
     bboxes, words = getOCR(dt_boxes, rec_res)
@@ -143,6 +156,7 @@ def get_LayoutLM_result(image, bboxes, words, file, colors):
     seg()
     print('-------------------- Testing Dataset Made --------------------')
     preds = inference()[0]
+    print(len(bboxes), len(preds))
     for i in range(len(bboxes)):
         if not preds[i] == 'O':
             preds[i] = preds[i][2:]
@@ -169,9 +183,10 @@ if __name__ == "__main__":
     for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
         if not file.find("png") >= 0 and file.find("jpg") >= 0: continue
         print('--------------------', file, '--------------------', '\n')
-        origin_img = cv.imread(os.path.join(config["DocumentFolder"]["Path"], file))
+        filePath = os.path.join(config["DocumentFolder"]["Path"], file)
+        origin_img = cv.imread(filePath)
         rectified_img = rectifyImage(origin_img)
-        bboxes, words = get_OCR_result(rectified_img)
+        bboxes, words = get_OCR_result(rectified_img, filePath)
         if config["ModelType"]["Name"] == "LayoutLM":
             image = get_LayoutLM_result(rectified_img, bboxes, words, file, colors)
             cv.imwrite(os.path.join('output', file), image)
