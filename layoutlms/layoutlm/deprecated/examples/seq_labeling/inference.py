@@ -123,7 +123,7 @@ def evaluate(args, model, tokenizer, labels, pad_token_label_id, mode, prefix=""
 
     return preds_list
 
-def main():  # noqa C901
+def inference():  # noqa C901
     parser = argparse.ArgumentParser()
 
     ## Required parameters
@@ -221,50 +221,43 @@ def main():  # noqa C901
     set_seed(args)
 
     labels = get_labels(args.labels)
-    num_labels = len(labels)
     # Use cross entropy ignore index as padding label id so that only real label ids contribute to the loss later
     pad_token_label_id = CrossEntropyLoss().ignore_index
 
     args.model_type = args.model_type.lower()
-    config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
-    config = config_class.from_pretrained(
-        args.config_name if args.config_name else args.model_name_or_path,
-        num_labels=num_labels,
-        cache_dir=args.cache_dir if args.cache_dir else None,
-    )
+    _, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     tokenizer = tokenizer_class.from_pretrained(
-        args.model_name_or_path, do_lower_case=args.do_lower_case
-    )
+        args.model_name_or_path, do_lower_case=args.do_lower_case)
     model = model_class.from_pretrained(args.output_dir)
     model.to(args.device)
 
     predictions = evaluate(
         args, model, tokenizer, labels, pad_token_label_id, mode="test")
-
-    output_test_predictions_file = os.path.join(args.output_dir, "test_predictions.txt")
-    with open(output_test_predictions_file, "w", encoding="utf8") as writer:
-        with open(
-            os.path.join(args.data_dir, "test.txt"), "r", encoding="utf8"
-        ) as f:
-            example_id = 0
-            for line in f:
-                if line.startswith("-DOCSTART-") or line == "" or line == "\n":
-                    writer.write(line)
-                    if not predictions[example_id]:
-                        example_id += 1
-                elif predictions[example_id]:
-                    output_line = (
-                        line.split()[0]
-                        + " "
-                        + predictions[example_id].pop(0)
-                        + "\n"
-                    )
-                    writer.write(output_line)
-                else:
-                    print(
-                        "Maximum sequence length exceeded: No prediction for '%s'.",
-                        line.split()[0],
-                    )
+    
+    # output_test_predictions_file = os.path.join(args.output_dir, "test_predictions.txt")
+    # with open(output_test_predictions_file, "w", encoding="utf8") as writer:
+    #     with open(
+    #         os.path.join(args.data_dir, "test.txt"), "r", encoding="utf8"
+    #     ) as f:
+    #         example_id = 0
+    #         for line in f:
+    #             if line.startswith("-DOCSTART-") or line == "" or line == "\n":
+    #                 writer.write(line)
+    #                 if not predictions[example_id]:
+    #                     example_id += 1
+    #             elif predictions[example_id]:
+    #                 output_line = (
+    #                     line.split()[0]
+    #                     + " "
+    #                     + predictions[example_id].pop(0)
+    #                     + "\n"
+    #                 )
+    #                 writer.write(output_line)
+    #             else:
+    #                 print(
+    #                     "Maximum sequence length exceeded: No prediction for '%s'.",
+    #                     line.split()[0],
+    #                 )
 
     return predictions
 

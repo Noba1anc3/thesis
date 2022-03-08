@@ -8,3 +8,4 @@ paddlepaddle==2.2
 pyyaml==5.1
 wget
 paddlepaddle-gpu==2.2
+transformers==2.9.0

@@ -11,7 +11,7 @@ import shutil
 import random
 
 from Direction_Classify.tool.predict_system import TextSystem
-from layoutlms.layoutlm.deprecated.examples.seq_labeling.inference import main
+from layoutlms.layoutlm.deprecated.examples.seq_labeling.inference import inference
 from data.preprocess import convert, seg
 
 
@@ -141,12 +141,12 @@ def get_LayoutLM_result(image, bboxes, words, file, colors):
     convert(image.shape, bboxes, words, file)
     seg()
     print('-------------------- Testing Dataset Made --------------------')
-    preds = main()
-
+    preds = inference()
+    print(preds)
     for i in range(len(bboxes)):
         if not preds[i] == 'O':
-            cv.putText(image, preds[i], bboxes[i], cv.FONT_HERSHEY_COMPLEX, 2, (0, 0, 0))
-        cv.rectangle(image, bboxes[0], bboxes[1], colors[i])
+            cv.putText(image, preds[i], bboxes[i][0], cv.FONT_HERSHEY_COMPLEX, 2, (0, 0, 0))
+        cv.rectangle(image, bboxes[i][0], bboxes[i][1], colors[i])
     
     return image
 
