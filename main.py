@@ -17,12 +17,12 @@ from Direction_Classify.tool.utility import draw_ocr_box_txt
 from data.preprocess import convert, seg
 
 
-sem_labels = ['O', 'INVConsignee', 'INVShipper', 'INVTotalGW', 
-'INVCommodity.COO', 'INVNo', 'INVCurrency', 'INVPage', 'INVCommodity.Desc', 
-'INVDate', 'INVTermType', 'INVCommodity.Total', 'INVCommodity.Qty', 
-'INVTotalQty', 'INVTotal', 'INVCommodity.Price', 'INVCommodity.ItemNo', 
-'INVCommodity.PartNumber', 'INVCommodity.HSCode', 'INVCommodity.Unit', 
-'INVWtUnit', 'INVCommodity.GW', 'INVCommodity.BoxNumber', 'INVTotalNW', 'INVQtyUom']
+sem_labels = ['O', 'Consignee', 'Shipper', 'TotalGW', 
+'C.COO', 'No', 'Currency', 'Page', 'C.Desc', 
+'Date', 'TermType', 'C.Total', 'C.Qty', 
+'TotalQty', 'Total', 'C.Price', 'C.ItemNo', 
+'C.PartNumber', 'C.HSCode', 'C.Unit', 
+'WtUnit', 'C.GW', 'C.BoxNumber', 'TotalNW', 'QtyUom']
 
 
 def configParser():
@@ -203,13 +203,11 @@ def deal_with_preds(preds):
     sem_labels_Upper = [sem_label.upper() for sem_label in sem_labels]
     
     for i, pred in enumerate(preds):
-        index = sem_labels_Upper.index(pred)
-        preds[i] = sem_labels[index]
-        if preds[i] != 'O': preds[i] = preds[i][5:]
-        else: preds[i] = ''
+        pred = pred.replace("INV", "").replace("OMMODITY", "")
 
-        if preds[i].find(".") >= 0: 
-            preds[i] = "C." + preds[i].split(".")[1]
+        if pred != 'O': 
+            index = sem_labels_Upper.index(pred[2:])
+            preds[i] = sem_labels[index]
 
     return preds
 

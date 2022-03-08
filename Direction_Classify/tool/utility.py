@@ -225,7 +225,7 @@ def draw_ocr_box_txt(image,
     for idx, (box, txt) in enumerate(zip(boxes, txts)):
         color = colors[sem_labels.index(txts[idx])]
         draw_left.polygon(box, fill=color)
-        if not txt == '':
+        if not txt == 'O':
             draw_right.polygon(
                 [
                     box[0][0], box[0][1], box[1][0], box[1][1], box[2][0],
@@ -240,7 +240,7 @@ def draw_ocr_box_txt(image,
             font_size = max(int(box_width * 0.9), 10)
             font = ImageFont.truetype(font_path, font_size, encoding="utf-8")
             cur_y = box[0][1]
-            if not txt == '':
+            if not txt == 'O':
                 for c in txt:
                     char_size = font.getsize(c)
                     draw_right.text(
@@ -249,7 +249,7 @@ def draw_ocr_box_txt(image,
         else:
             font_size = max(int(box_height * 0.8), 10)
             font = ImageFont.truetype(font_path, font_size, encoding="utf-8")
-            if not txt == '':
+            if not txt == 'O':
                 draw_right.text(
                     [box[0][0], box[0][1]], txt, fill=(0, 0, 0), font=font)
     img_left = Image.blend(image, img_left, 0.5)
