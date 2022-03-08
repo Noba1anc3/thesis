@@ -29,7 +29,7 @@ class TextSystem(object):
                  args=utility.parse_args(),
                  DET_MODEL_DIR = 'ch_ppocr_mobile_v1.1_det_infer',
                  CLS_MODEL_DIR = 'ch_ppocr_mobile_v1.1_cls_infer',
-                 GPU=True):
+                 GPU=True, PhaseI = True, PhaseII = True):
 
         args.use_gpu = GPU
         args.det_model_dir = os.path.join(__back_dir__, 'inference', DET_MODEL_DIR)

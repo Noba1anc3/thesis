@@ -24,7 +24,6 @@ sem_labels = ['', 'INVConsignee', 'INVShipper', 'INVTotalGW',
 'INVCommodity.PartNumber', 'INVCommodity.HSCode', 'INVCommodity.Unit', 
 'INVWtUnit', 'INVCommodity.GW', 'INVCommodity.BoxNumber', 'INVTotalNW', 'INVQtyUom']
 
-sem_labels_Upper = [sem_label.upper() for sem_label in sem_labels]
 
 def configParser():
     with open("configs.yaml", "r") as f:
@@ -150,10 +149,12 @@ def getOCR(dt_boxes, rec_res):
 
 
 def rectifyImage(img):
-    if not config["Json"]["Use"] and \
-        config["Rotate"]["PhaseI"] and config["Rotate"]["PhaseII"]:
-        text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer', 
-                                GPU=torch.cuda.is_available())
+    if not config["Json"]["Use"]:
+        text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer',
+                              CLS_MODEL_DIR='ch_ppocr_mobile_v2.0_cls_infer',
+                                GPU=torch.cuda.is_available(),
+                                PhaseI = config["Rotate"]["PhaseI"],
+                                PhaseII = config["Rotate"]["PhaseII"])
         return text_sys(img)
     return img
 
@@ -195,7 +196,7 @@ def get_LayoutLM_result(image, bboxes, words, file):
     preds = inference()
     
     pred_image = drawImage(image, bboxes, preds, 
-                            sem_labels_Upper, colors)
+                            sem_labels, colors)
     pred_json = organizeJson(bboxes, words, preds)
 
     return pred_image, pred_json
