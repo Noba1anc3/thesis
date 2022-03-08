@@ -141,8 +141,7 @@ def get_LayoutLM_result(image, bboxes, words, file, colors):
     convert(image.shape, bboxes, words, file)
     seg()
     print('-------------------- Testing Dataset Made --------------------')
-    preds = inference()
-    print(preds)
+    preds = inference()[0]
     for i in range(len(bboxes)):
         if not preds[i] == 'O':
             cv.putText(image, preds[i], bboxes[i][0], cv.FONT_HERSHEY_COMPLEX, 2, (0, 0, 0))
