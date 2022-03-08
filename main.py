@@ -36,7 +36,7 @@ def sem_colors():
     colors = []
     for _ in range(24):
         colors.append((random.randint(0, 255), random.randint(0, 255),random.randint(0, 255)))
-    colors = (100, 100, 100) + colors
+    colors = [(100, 100, 100)] + colors
     return colors
 colors = sem_colors()
 
