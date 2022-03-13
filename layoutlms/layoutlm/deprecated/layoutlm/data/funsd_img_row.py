@@ -54,7 +54,7 @@ class FunsdDataset(Dataset):
         self.all_bboxes = torch.tensor([f.boxes for f in features], dtype=torch.long)
         self.all_resized_image = [ToTensor()(f.resized_image) for f in features]
         self.all_resized_and_aligned_bboxes = torch.tensor([f.resized_and_aligned_bboxes for f in features], dtype=torch.long)
-        self.all_row_lines = torch.tensor([f.row_lines for f in features], dtype=torch.long)
+        self.all_row_bboxes = torch.tensor([f.row_lines for f in features], dtype=torch.long)
 
     def __len__(self):
         return len(self.features)
@@ -68,7 +68,7 @@ class FunsdDataset(Dataset):
             self.all_bboxes[index],
             self.all_resized_image[index],
             self.all_resized_and_aligned_bboxes[index],
-            self.all_row_lines[index],
+            self.all_row_bboxes[index],
         )
 
 
