@@ -238,10 +238,10 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
 
         sequence_output = outputs[0]
 
-        row_left_position_embeddings = self.row_x_position_embeddings(row_bbox[:, :, 0])
-        row_right_position_embeddings = self.row_x_position_embeddings(row_bbox[:, :, 2])
+        row_left_position_embeddings = self.row_x_position_embeddings(row_bboxes[:, :, 0])
+        row_right_position_embeddings = self.row_x_position_embeddings(row_bboxes[:, :, 2])
         row_w_position_embeddings = self.row_w_position_embeddings(
-            row_bbox[:, :, 2] - row_bbox[:, :, 0]
+            row_bboxes[:, :, 2] - row_bboxes[:, :, 0]
         )
 
         row_embeddings = (
