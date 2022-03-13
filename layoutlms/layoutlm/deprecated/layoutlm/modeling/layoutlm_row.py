@@ -241,6 +241,8 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
                     + row_right_position_embeddings
                     + row_w_position_embeddings
                 )
+        row_embeddings = self.LayerNorm(row_embeddings)
+        row_embeddings = self.dropout(row_embeddings)
         sequence_output += row_embeddings
 
         sequence_output = self.dropout(sequence_output)

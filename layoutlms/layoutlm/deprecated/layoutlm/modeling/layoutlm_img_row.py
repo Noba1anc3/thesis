@@ -208,7 +208,8 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         self.row_w_position_embeddings = nn.Embedding(
             config.max_2d_position_embeddings, config.hidden_size
         )
-        
+        self.LayerNorm = BertLayerNorm(config.hidden_size, eps=config.layer_norm_eps)
+
         self.init_weights()
 
 
@@ -248,6 +249,8 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
                     + row_right_position_embeddings
                     + row_w_position_embeddings
                 )
+        row_embeddings = self.LayerNorm(row_embeddings)
+        row_embeddings = self.dropout(row_embeddings)
 
         feature_maps = self.backbone(resized_images)
 
