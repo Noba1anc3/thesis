@@ -241,22 +241,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
                     + row_right_position_embeddings
                     + row_w_position_embeddings
                 )
-        print(row_embeddings.shape)
-        row_embeddings = self.LayerNorm(row_embeddings)
-        row_embeddings = self.dropout(row_embeddings)
-
-        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
-        extended_attention_mask = extended_attention_mask.to(
-            dtype=next(self.parameters()).dtype
-        )  # fp16 compatibility
-        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
-        head_mask = [None] * self.config.num_hidden_layers
-
-        encoder_outputs = self.encoder(
-            row_embeddings, extended_attention_mask, head_mask=head_mask
-        )[0]
-        print(encoder_outputs.shape)
-        sequence_output += encoder_outputs
+        sequence_output += row_embeddings
 
         sequence_output = self.dropout(sequence_output)
         logits = self.classifier(sequence_output)
