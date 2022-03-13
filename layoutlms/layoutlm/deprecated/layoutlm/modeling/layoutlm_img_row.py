@@ -197,7 +197,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-        model = torchvision.models.resnet101(pretrained=True)
+        model = torchvision.models.resnet152(pretrained=True)
         self.backbone = nn.Sequential(*(list(model.children())[:-3]))
         self.roi_align = RoIAlign((3, 3), spatial_scale=14/224, sampling_ratio=2)
         self.projection = nn.Linear(in_features=1024*3*3, out_features=config.hidden_size)
