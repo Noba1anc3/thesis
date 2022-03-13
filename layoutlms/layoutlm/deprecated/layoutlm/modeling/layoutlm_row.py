@@ -216,7 +216,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         position_ids=None,
         head_mask=None,
         labels=None,
-        row_bbox=None
+        row_bboxes=None
     ):
 
         outputs = self.bert(
@@ -230,10 +230,10 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
 
         sequence_output = outputs[0]
 
-        row_left_position_embeddings = self.row_x_position_embeddings(row_bbox[:, :, 0])
-        row_right_position_embeddings = self.row_x_position_embeddings(row_bbox[:, :, 2])
+        row_left_position_embeddings = self.row_x_position_embeddings(row_bboxes[:, :, 0])
+        row_right_position_embeddings = self.row_x_position_embeddings(row_bboxes[:, :, 2])
         row_w_position_embeddings = self.row_w_position_embeddings(
-            row_bbox[:, :, 2] - row_bbox[:, :, 0]
+            row_bboxes[:, :, 2] - row_bboxes[:, :, 0]
         )
 
         row_embeddings = (
@@ -241,6 +241,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
                     + row_right_position_embeddings
                     + row_w_position_embeddings
                 )
+        print(row_embeddings.shape)
         row_embeddings = self.LayerNorm(row_embeddings)
         row_embeddings = self.dropout(row_embeddings)
 
@@ -254,7 +255,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         encoder_outputs = self.encoder(
             row_embeddings, extended_attention_mask, head_mask=head_mask
         )[0]
-
+        print(encoder_outputs.shape)
         sequence_output += encoder_outputs
 
         sequence_output = self.dropout(sequence_output)
