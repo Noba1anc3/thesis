@@ -97,7 +97,7 @@ def convert(args):
                             + "\n"
                         )
                     else:
-                        fw.write(words[0]["text"] + "\tB-" + label.upper() + "\n")
+                        fw.write(words[0]["text"] + "\tS-" + label.upper() + "\n")
                         fbw.write(
                             words[0]["text"]
                             + "\t"
@@ -113,7 +113,7 @@ def convert(args):
                             + "\n"
                         )
                         for w in words[1:-1]:
-                            fw.write(w["text"] + "\tI-" + label.upper() + "\n")
+                            fw.write(w["text"] + "\tS-" + label.upper() + "\n")
                             fbw.write(
                                 w["text"]
                                 + "\t"
@@ -128,7 +128,7 @@ def convert(args):
                                 + file_name
                                 + "\n"
                             )
-                        fw.write(words[-1]["text"] + "\tE-" + label.upper() + "\n")
+                        fw.write(words[-1]["text"] + "\tS-" + label.upper() + "\n")
                         fbw.write(
                             words[-1]["text"]
                             + "\t"
@@ -204,7 +204,7 @@ def seg(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--data_dir", type=str, default="data/training_data/annotations"
+        "--data_dir", type=str, default="data/FUNSD/training_data/annotations"
     )
     parser.add_argument("--data_split", type=str, default="train")
     parser.add_argument("--output_dir", type=str, default="data")
