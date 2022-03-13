@@ -66,6 +66,21 @@ python run_seq_labeling.py  --data_dir data \
                             --per_gpu_train_batch_size 16 \
                             --per_gpu_eval_batch_size 16 \
 
+
+python run_seq_labeling.py  --data_dir data/FUNSD \
+                            --model_type layoutlm \
+                            --model_name_or_path layoutlm-base-uncased \
+                            --do_lower_case \
+                            --max_seq_length 512 \
+                            --do_train \
+                            --num_train_epochs 100.0 \
+                            --logging_steps 100 \
+                            --save_steps -1 \
+                            --output_dir output \
+                            --labels data/labels_funsd.txt \
+                            --per_gpu_train_batch_size 16 \
+                            --per_gpu_eval_batch_size 16 \
+                            
 ### Sequence Labeling Task
 
 

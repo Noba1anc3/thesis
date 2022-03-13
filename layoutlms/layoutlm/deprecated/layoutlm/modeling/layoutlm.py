@@ -6,8 +6,6 @@ from torch.nn import CrossEntropyLoss, MSELoss
 from transformers import BertConfig, BertModel, BertPreTrainedModel
 from transformers.modeling_bert import BertLayerNorm
 import numpy as np
-import torchvision
-from torchvision.ops import RoIAlign
 
 logger = logging.getLogger(__name__)
 
@@ -197,12 +195,6 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-        # model = torchvision.models.resnet101(pretrained=True)
-        # print(model)
-        # self.backbone = nn.Sequential(*(list(model.children())[:-3]))
-        # self.roi_align = RoIAlign((3, 3), spatial_scale=14/224, sampling_ratio=2)
-        # self.projection = nn.Linear(in_features=1024*3*3, out_features=config.hidden_size)
-
         self.init_weights()
 
 
@@ -215,8 +207,6 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         position_ids=None,
         head_mask=None,
         labels=None,
-        resized_images=None,
-        resized_and_aligned_bboxes=None
     ):
 
         outputs = self.bert(
@@ -229,29 +219,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         )
 
         sequence_output = outputs[0]
-
-        # feature_maps = self.backbone(resized_images)
-
-        # resized_bounding_boxes_list = []
-        # for i in resized_and_aligned_bboxes:
-        #     resized_bounding_boxes_list.append(i.float())
-                
-        # feat_maps_bboxes = self.roi_align(input=feature_maps, 
-        #                                 # we pass in a list of tensors
-        #                                 # We have also added -0.5 for the first two coordinates and +0.5 for the last two coordinates,
-        #                                 # see https://stackoverflow.com/questions/60060016/why-does-roi-align-not-seem-to-work-in-pytorch
-        #                                 rois=resized_bounding_boxes_list
-        #                    )  
-      
-        # # next, reshape  + project to same dimension as LayoutLM. 
-        # batch_size = input_ids.shape[0]
-        # seq_len = input_ids.shape[1]
-        # feat_maps_bboxes = feat_maps_bboxes.view(batch_size, seq_len, -1) # Shape (batch_size, seq_len, 1024*3*3)
-        # projected_feat_maps_bboxes = self.projection(feat_maps_bboxes) # Shape (batch_size, seq_len, hidden_size)
-
-        # # add those to the sequence_output - shape (batch_size, seq_len, hidden_size)
-        # sequence_output += projected_feat_maps_bboxes
-
+    
         sequence_output = self.dropout(sequence_output)
         logits = self.classifier(sequence_output)
 
