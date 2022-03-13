@@ -224,7 +224,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         labels=None,
         resized_images=None,
         resized_and_aligned_bboxes=None,
-        row_bbox=None
+        row_bboxes=None
     ):
 
         outputs = self.bert(
