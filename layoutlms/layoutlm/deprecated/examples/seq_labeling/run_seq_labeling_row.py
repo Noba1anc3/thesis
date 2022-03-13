@@ -58,8 +58,8 @@ __back_dir__ = os.path.join(__dir__, '../..')
 sys.path.append(os.path.abspath(__dir__))
 sys.path.append(os.path.abspath(__back_dir__))
 
-from layoutlmv1.data.funsd_row import FunsdDataset
-from layoutlmv1.modeling.layoutlm_row import LayoutlmConfig, LayoutlmForTokenClassification
+from layoutlm.data.funsd_row import FunsdDataset
+from layoutlm.modeling.layoutlm_row import LayoutlmConfig, LayoutlmForTokenClassification
 
 logger = logging.getLogger(__name__)
 
