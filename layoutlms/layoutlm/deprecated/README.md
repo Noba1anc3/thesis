@@ -54,7 +54,7 @@ pip install .
 
 python run_seq_labeling.py  --data_dir data \
                             --model_type layoutlm \
-                            --model_name_or_path microsoft/layoutlm-base-uncased \
+                            --model_name_or_path layoutlm-base-uncased \
                             --do_lower_case \
                             --max_seq_length 512 \
                             --do_train \

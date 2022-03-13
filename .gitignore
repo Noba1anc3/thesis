@@ -30,3 +30,4 @@ PaddleOCR-release-2.4.zip
 models/layoutlm
 models/layoutlmv2_base
 models/layoutlmv2_large
+layoutlms/layoutlm/deprecated/examples/seq_labeling/layoutlm-base-uncased
