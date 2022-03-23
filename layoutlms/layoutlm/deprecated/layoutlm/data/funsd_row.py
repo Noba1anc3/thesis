@@ -52,7 +52,7 @@ class FunsdDataset(Dataset):
         self.all_segment_ids = torch.tensor([f.segment_ids for f in features], dtype=torch.long)
         self.all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
         self.all_bboxes = torch.tensor([f.boxes for f in features], dtype=torch.long)
-        self.all_row_bboxes = torch.tensor([f.row_lines for f in features], dtype=torch.long)
+        self.all_senIDs = torch.tensor([f.senIDs for f in features], dtype=torch.long)
 
     def __len__(self):
         return len(self.features)

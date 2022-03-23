@@ -197,12 +197,10 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-        self.row_x_position_embeddings = nn.Embedding(
-            config.max_2d_position_embeddings, config.hidden_size
+        self.senID_embeddings = nn.Embedding(
+            512, config.hidden_size
         )
-        self.row_w_position_embeddings = nn.Embedding(
-            config.max_2d_position_embeddings, config.hidden_size
-        )
+        
         self.LayerNorm = BertLayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.init_weights()
 
@@ -216,7 +214,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         position_ids=None,
         head_mask=None,
         labels=None,
-        row_bboxes=None
+        senIDs=None
     ):
 
         outputs = self.bert(
@@ -230,20 +228,9 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
 
         sequence_output = outputs[0]
 
-        row_left_position_embeddings = self.row_x_position_embeddings(row_bboxes[:, :, 0])
-        row_right_position_embeddings = self.row_x_position_embeddings(row_bboxes[:, :, 2])
-        row_w_position_embeddings = self.row_w_position_embeddings(
-            row_bboxes[:, :, 2] - row_bboxes[:, :, 0]
-        )
-
-        row_embeddings = (
-                    row_left_position_embeddings
-                    + row_right_position_embeddings
-                    + row_w_position_embeddings
-                )
-        row_embeddings = self.LayerNorm(row_embeddings)
-        row_embeddings = self.dropout(row_embeddings)
-        sequence_output += row_embeddings
+        senID_embeddings = self.senID_embeddings(senIDs)
+        senID_embeddings = self.LayerNorm(senID_embeddings)
+        sequence_output += senID_embeddings
 
         sequence_output = self.dropout(sequence_output)
         logits = self.classifier(sequence_output)

@@ -241,7 +241,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
                                         # We have also added -0.5 for the first two coordinates and +0.5 for the last two coordinates,
                                         # see https://stackoverflow.com/questions/60060016/why-does-roi-align-not-seem-to-work-in-pytorch
                                         rois=resized_bounding_boxes_list
-                           )  
+                           )
       
         # next, reshape  + project to same dimension as LayoutLM. 
         batch_size = input_ids.shape[0]

@@ -222,13 +222,15 @@ def inference():  # noqa C901
 
     labels = get_labels(args.labels)
     # Use cross entropy ignore index as padding label id so that only real label ids contribute to the loss later
-    pad_token_label_id = CrossEntropyLoss().ignore_index
+    pad_token_label_id = -100 # CrossEntropyLoss().ignore_index
 
     args.model_type = args.model_type.lower()
     _, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     tokenizer = tokenizer_class.from_pretrained(
         args.model_name_or_path, do_lower_case=args.do_lower_case)
+
     model = model_class.from_pretrained(args.output_dir)
+
     model.to(args.device)
 
     predictions = evaluate(
