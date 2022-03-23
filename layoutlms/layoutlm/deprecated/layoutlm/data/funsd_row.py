@@ -64,7 +64,7 @@ class FunsdDataset(Dataset):
             self.all_segment_ids[index],
             self.all_label_ids[index],
             self.all_bboxes[index],
-            self.all_row_bboxes[index],
+            self.all_senIDs[index],
         )
 
 
