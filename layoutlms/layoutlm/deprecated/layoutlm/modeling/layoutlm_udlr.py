@@ -218,13 +218,13 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         head_mask=None,
         labels=None,
         leftMin=None,
-        leftMid=None,
+        leftBox=None,
         rightMin=None,
-        rightMid=None,
+        rightBox=None,
         upMin=None,
-        upMid=None,
+        upBox=None,
         downMin=None,
-        downMid=None
+        downBox=None
     ):
 
         outputs = self.bert(
@@ -236,6 +236,11 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
             head_mask=head_mask,
         )
 
+        leftMid = leftBox
+        rightMid = rightBox
+        upMid = upBox
+        downMid = downBox
+        
         sequence_output = outputs[0]
 
         leftMin_embeddings = self.xDist_embeddings(leftMin)

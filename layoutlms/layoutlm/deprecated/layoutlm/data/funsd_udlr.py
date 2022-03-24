@@ -53,13 +53,13 @@ class FunsdDataset(Dataset):
         self.all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
         self.all_bboxes = torch.tensor([f.boxes for f in features], dtype=torch.long)
         self.all_leftMin = torch.tensor([f.left_min for f in features], dtype=torch.long)
-        self.all_leftMid = torch.tensor([f.left_mid for f in features], dtype=torch.long)
+        self.all_leftBox = torch.tensor([f.left_box for f in features], dtype=torch.long)
         self.all_rightMin = torch.tensor([f.right_min for f in features], dtype=torch.long)
-        self.all_rightMid = torch.tensor([f.right_mid for f in features], dtype=torch.long)
+        self.all_rightBox = torch.tensor([f.right_box for f in features], dtype=torch.long)
         self.all_upMin = torch.tensor([f.up_min for f in features], dtype=torch.long)
-        self.all_upMid = torch.tensor([f.up_mid for f in features], dtype=torch.long)
+        self.all_upBox = torch.tensor([f.up_box for f in features], dtype=torch.long)
         self.all_downMin = torch.tensor([f.down_min for f in features], dtype=torch.long)
-        self.all_downMid = torch.tensor([f.down_mid for f in features], dtype=torch.long)
+        self.all_downBox = torch.tensor([f.down_box for f in features], dtype=torch.long)
 
     def __len__(self):
         return len(self.features)
@@ -72,13 +72,13 @@ class FunsdDataset(Dataset):
             self.all_label_ids[index],
             self.all_bboxes[index],
             self.all_leftMin[index],
-            self.all_leftMid[index],
+            self.all_leftBox[index],
             self.all_rightMin[index],
-            self.all_rightMid[index],
+            self.all_rightBox[index],
             self.all_upMin[index],
-            self.all_upMid[index],
+            self.all_upBox[index],
             self.all_downMin[index],
-            self.all_downMid[index],
+            self.all_downBox[index],
         )
 
 

@@ -58,8 +58,8 @@ __back_dir__ = os.path.join(__dir__, '../..')
 sys.path.append(os.path.abspath(__dir__))
 sys.path.append(os.path.abspath(__back_dir__))
 
-from layoutlm.data.funsd_row import FunsdDataset
-from layoutlm.modeling.layoutlm_row import LayoutlmConfig, LayoutlmForTokenClassification
+from layoutlmv1.data.funsd_udlr import FunsdDataset
+from layoutlmv1.modeling.layoutlm_udlr import LayoutlmConfig, LayoutlmForTokenClassification
 
 logger = logging.getLogger(__name__)
 
@@ -225,13 +225,13 @@ def train(  # noqa C901
             if args.model_type in ["layoutlm"]:
                 inputs["bbox"] = batch[4].to(args.device)
                 inputs["leftMin"] = batch[5].to(args.device)
-                inputs["leftMid"] = batch[6].to(args.device)
+                inputs["leftBox"] = batch[6].to(args.device)
                 inputs["rightMin"] = batch[7].to(args.device)
-                inputs["rightMid"] = batch[8].to(args.device)
+                inputs["rightBox"] = batch[8].to(args.device)
                 inputs["upMin"] = batch[9].to(args.device)
-                inputs["upMid"] = batch[10].to(args.device)
+                inputs["upBox"] = batch[10].to(args.device)
                 inputs["downMin"] = batch[11].to(args.device)
-                inputs["downMid"] = batch[12].to(args.device)
+                inputs["downBox"] = batch[12].to(args.device)
             inputs["token_type_ids"] = (
                 batch[2].to(args.device) if args.model_type in ["bert", "layoutlm"] else None
             )  # RoBERTa don"t use segment_ids
