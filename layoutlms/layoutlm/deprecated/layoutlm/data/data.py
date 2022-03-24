@@ -83,34 +83,34 @@ for i, item in enumerate(a):
     print(i, len(a))
     a[i].left_min = []
     a[i].left_id = []
-    a[i].left_box = []
+    a[i].left_length = []
 
     a[i].right_min = []
     a[i].right_id = []
-    a[i].right_box = []
+    a[i].right_length = []
 
     a[i].up_min = []
     a[i].up_id = []
-    a[i].up_box = []
+    a[i].up_length = []
 
     a[i].down_min = []
     a[i].down_id = []
-    a[i].down_box = []
+    a[i].down_length = []
 
     for j, curbox in enumerate(item.row_lines):
         if item.senIDs[j] == 0:
             a[i].left_min.append(0)
             a[i].left_id.append(0)
-            a[i].left_box.append([0,0,0,0])
+            a[i].left_length.append(0)
             a[i].right_min.append(0)
             a[i].right_id.append(0)
-            a[i].right_box.append([0,0,0,0])
+            a[i].right_length.append(0)
             a[i].up_min.append(0)
             a[i].up_id.append(0)
-            a[i].up_box.append([0,0,0,0])
+            a[i].up_length.append(0)
             a[i].down_min.append(0)
             a[i].down_id.append(0)
-            a[i].down_box.append([0,0,0,0])
+            a[i].down_length.append(0)
         else:
             curbox_height = curbox[3] - curbox[0]
             curbox_mid = ((curbox[0] + curbox[2])/2, (curbox[1] + curbox[3])/2)
@@ -127,7 +127,7 @@ for i, item in enumerate(a):
             if left_min == 10086: left_min = 0
             a[i].left_min.append(left_min)
             a[i].left_id.append(left_id)
-            a[i].left_box.append(left_box)
+            a[i].left_length.append(left_box[2] - left_box[0])
 
             right_min, right_id, right_box = 10086, 0, [0,0,0,0]
             for k, box in enumerate(item.row_lines):
@@ -142,7 +142,7 @@ for i, item in enumerate(a):
             if right_min == 10086: right_min = 0
             a[i].right_min.append(right_min)
             a[i].right_id.append(right_id)
-            a[i].right_box.append(right_box)
+            a[i].right_length.append(right_box[2] - right_box[0])
 
             up_min, up_id, up_box = 10086, 0, [0,0,0,0]
             for k, box in enumerate(item.row_lines):
@@ -157,7 +157,7 @@ for i, item in enumerate(a):
             if up_min == 10086: up_min = 0
             a[i].up_min.append(up_min)
             a[i].up_id.append(up_id)
-            a[i].up_box.append(up_box)
+            a[i].up_length.append(up_box[2] - up_box[0])
 
             down_min, down_id, down_box = 10086, 0, [0,0,0,0]
             for k, box in enumerate(item.row_lines):
@@ -172,7 +172,7 @@ for i, item in enumerate(a):
             if down_min == 10086: down_min = 0
             a[i].down_min.append(down_min)
             a[i].down_id.append(down_id)
-            a[i].down_box.append(down_box)
+            a[i].down_length.append(down_box[2] - down_box[0])
 
 
 

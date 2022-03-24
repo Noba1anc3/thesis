@@ -354,13 +354,13 @@ def evaluate(args, model, tokenizer, labels, pad_token_label_id, mode, prefix=""
             if args.model_type in ["layoutlm"]:
                 inputs["bbox"] = batch[4].to(args.device)
                 inputs["leftMin"] = batch[5].to(args.device)
-                inputs["leftMid"] = batch[6].to(args.device)
+                inputs["leftBox"] = batch[6].to(args.device)
                 inputs["rightMin"] = batch[7].to(args.device)
-                inputs["rightMid"] = batch[8].to(args.device)
+                inputs["rightBox"] = batch[8].to(args.device)
                 inputs["upMin"] = batch[9].to(args.device)
-                inputs["upMid"] = batch[10].to(args.device)
+                inputs["upBox"] = batch[10].to(args.device)
                 inputs["downMin"] = batch[11].to(args.device)
-                inputs["downMid"] = batch[12].to(args.device)
+                inputs["downBox"] = batch[12].to(args.device)
             inputs["token_type_ids"] = (
                 batch[2].to(args.device)
                 if args.model_type in ["bert", "layoutlm"]
