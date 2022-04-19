@@ -224,7 +224,7 @@ def train(  # noqa C901
             }
             if args.model_type in ["layoutlm"]:
                 inputs["bbox"] = batch[4].to(args.device)
-                inputs["senIDs"] = batch[5].to(args.device)
+                inputs["knns"] = batch[5].to(args.device)
             inputs["token_type_ids"] = (
                 batch[2].to(args.device) if args.model_type in ["bert", "layoutlm"] else None
             )  # RoBERTa don"t use segment_ids

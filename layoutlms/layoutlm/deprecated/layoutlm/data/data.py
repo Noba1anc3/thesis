@@ -13,7 +13,7 @@ sys.path.insert(0, '/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/
 import cv2 as cv
 from PIL import Image
 
-a = torch.load("/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_dev_layoutlm-base-uncased_512_tok_img_rowIDs")
+a = torch.load("/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_train_layoutlm-base-uncased_512_tok_img_rowIDs")
 
 folder_path = '/home/dreamaker/thesis/thesis/SG_Dataset/test_tok/image/'
 def overlap(box1, box2):
@@ -123,4 +123,4 @@ for i, item in enumerate(a):
 # backbone = nn.Sequential(*(list(model.children())[:-3]))
 # feature_maps = backbone(image)
 
-torch.save(a, "/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_dev_layoutlm-base-uncased_512_tok_img_rowIDs_knn")
+torch.save(a, "/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_train_layoutlm-base-uncased_512_tok_img_rowIDs_knn")
