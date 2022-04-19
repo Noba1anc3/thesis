@@ -1,8 +1,10 @@
 import imp
+from re import I
 from turtle import left, up
 import numpy
 import torch
 import os
+import copy
 import sys
 import torch.nn as nn
 from torchvision.transforms import ToTensor
@@ -11,7 +13,7 @@ sys.path.insert(0, '/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/
 import cv2 as cv
 from PIL import Image
 
-a = torch.load("/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_train_layoutlm-base-uncased_512_tok_img_rowIDs")
+a = torch.load("/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_dev_layoutlm-base-uncased_512_tok_img_rowIDs")
 
 folder_path = '/home/dreamaker/thesis/thesis/SG_Dataset/test_tok/image/'
 def overlap(box1, box2):
@@ -79,102 +81,32 @@ def get_box(box, page_size):
 #             cv.waitKey(0)
 
 
+def cal_dist(box1, box2):
+    center1 = (box1[0] + box1[2], box1[1] + box1[3])
+    center2 = (box2[0] + box2[2], box2[1] + box2[3])
+    dist = (center1[0] - center2[0])**2 + (center1[1] - center2[1])**2
+    return dist
+
 for i, item in enumerate(a):
     print(i, len(a))
-    a[i].left_min = []
-    a[i].left_id = []
-    a[i].left_length = []
 
-    a[i].right_min = []
-    a[i].right_id = []
-    a[i].right_length = []
+    knn = []
+    k_list = [0 for _ in range(10)]
+    for u in range(512):
+        knn.append(copy.copy(k_list))
+    a[i].knn = knn
 
-    a[i].up_min = []
-    a[i].up_id = []
-    a[i].up_length = []
-
-    a[i].down_min = []
-    a[i].down_id = []
-    a[i].down_length = []
-
-    for j, curbox in enumerate(item.row_lines):
-        if item.senIDs[j] == 0:
-            a[i].left_min.append(0)
-            a[i].left_id.append(0)
-            a[i].left_length.append(0)
-            a[i].right_min.append(0)
-            a[i].right_id.append(0)
-            a[i].right_length.append(0)
-            a[i].up_min.append(0)
-            a[i].up_id.append(0)
-            a[i].up_length.append(0)
-            a[i].down_min.append(0)
-            a[i].down_id.append(0)
-            a[i].down_length.append(0)
-        else:
-            curbox_height = curbox[3] - curbox[0]
-            curbox_mid = ((curbox[0] + curbox[2])/2, (curbox[1] + curbox[3])/2)
-            left_min, left_id, left_box = 10086, 0, [0,0,0,0]
-            for k, box in enumerate(item.row_lines):
-                if item.senIDs[k] == 0:
-                    continue
-                box_mid = ((box[0] + box[2])/2, (box[1] + box[3])/2)
-                if box[2] < curbox[0] and abs(box_mid[1] - curbox_mid[1]) < curbox_height:
-                    if curbox[0] - box[2] < left_min:
-                        left_min = curbox[0] - box[2]
-                        left_id = item.senIDs[k]
-                        left_box = box
-            if left_min == 10086: left_min = 0
-            a[i].left_min.append(left_min)
-            a[i].left_id.append(left_id)
-            a[i].left_length.append(left_box[2] - left_box[0])
-
-            right_min, right_id, right_box = 10086, 0, [0,0,0,0]
-            for k, box in enumerate(item.row_lines):
-                if item.senIDs[k] == 0:
-                    continue
-                box_mid = ((box[0] + box[2])/2, (box[1] + box[3])/2)
-                if box[0] > curbox[2] and abs(box_mid[1] - curbox_mid[1]) < curbox_height:
-                    if box[0] - curbox[2] < right_min:
-                        right_min = box[0] - curbox[2]
-                        right_id = item.senIDs[k]
-                        right_box = box
-            if right_min == 10086: right_min = 0
-            a[i].right_min.append(right_min)
-            a[i].right_id.append(right_id)
-            a[i].right_length.append(right_box[2] - right_box[0])
-
-            up_min, up_id, up_box = 10086, 0, [0,0,0,0]
-            for k, box in enumerate(item.row_lines):
-                if item.senIDs[k] == 0:
-                    continue
-                box_mid = ((box[0] + box[2])/2, (box[1] + box[3])/2)
-                if box[3] < curbox[1] and overlap(curbox, box):
-                    if curbox[1] - box[3] < up_min:
-                        up_min = curbox[1] - box[3]
-                        up_id = item.senIDs[k]
-                        up_box = box
-            if up_min == 10086: up_min = 0
-            a[i].up_min.append(up_min)
-            a[i].up_id.append(up_id)
-            a[i].up_length.append(up_box[2] - up_box[0])
-
-            down_min, down_id, down_box = 10086, 0, [0,0,0,0]
-            for k, box in enumerate(item.row_lines):
-                if item.senIDs[k] == 0:
-                    continue
-                box_mid = ((box[0] + box[2])/2, (box[1] + box[3])/2)
-                if box[1] > curbox[3] and overlap(curbox, box):
-                    if box[1] - curbox[3] < down_min:
-                        down_min = box[1] - curbox[3]
-                        down_id = item.senIDs[k]
-                        down_box = box
-            if down_min == 10086: down_min = 0
-            a[i].down_min.append(down_min)
-            a[i].down_id.append(down_id)
-            a[i].down_length.append(down_box[2] - down_box[0])
-
-
+    for j, box in enumerate(item.row_lines):
+        dists = {}
+        if item.senIDs[j] == 0: continue
+        for k, obox in enumerate(item.row_lines):
+            if item.senIDs[k] == 0: continue
+            if k == j: continue
+            dists[k] = cal_dist(box, obox)
+        for l, (key, _) in enumerate(sorted(dists.items(), key=lambda item: item[1])):
+            if l == 10: break
+            a[i].knn[j][l] = key
+        if a[i].knn[j][0] == 0: break
 
     # for j, row_line in enumerate(item.row_lines):
     #     if j == 0: continue
@@ -191,4 +123,4 @@ for i, item in enumerate(a):
 # backbone = nn.Sequential(*(list(model.children())[:-3]))
 # feature_maps = backbone(image)
 
-torch.save(a, "/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_train_layoutlm-base-uncased_512_tok_img_rows_udlr")
+torch.save(a, "/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_dev_layoutlm-base-uncased_512_tok_img_rowIDs_knn")

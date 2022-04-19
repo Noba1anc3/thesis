@@ -111,36 +111,6 @@ class LayoutlmModel(BertModel):
         self.embeddings = LayoutlmEmbeddings(config)
         self.init_weights()
 
-    def cal_dist(self, box1, box2):
-        center1 = (box1[0] + box1[2], box1[1] + box1[3])
-        center2 = (box2[0] + box2[2], box2[1] + box2[3])
-        dist = (center1[0] - center2[0])**2 + (center1[1] - center2[1])**2
-        return dist
-
-    def get_K_nearest_neighbors(self, K, bboxes):
-        KNN = []
-        k_list = [0 for _ in range(K)]
-        for i, _ in enumerate(bboxes):
-            KNN.append([])
-            for _ in range(512):
-                KNN[i].append(k_list)
-
-        # for i, boxes in enumerate(bboxes):
-        #     for j, box in enumerate(boxes):
-        #         dists = {}
-        #         for k, obox in enumerate(boxes):
-        #             if obox.tolist() in [[0,0,0,0], [1000,1000,1000,1000]]:
-        #                 continue
-        #             if k == j: continue
-        #             dists[k] = self.cal_dist(box, obox)
-        #         for l, (key, _) in enumerate(sorted(dists.items(), key=lambda item: item[1])):
-        #             if l == K: break
-        #             KNN[i][j][l] = key
-        #         if KNN[i][j][0] == 0: break
-        #         print(i, j, KNN[i][j])
-
-        return KNN
-
     def forward(
         self,
         input_ids,
@@ -198,8 +168,6 @@ class LayoutlmModel(BertModel):
         else:
             head_mask = [None] * self.config.num_hidden_layers
 
-        bKNNs = self.get_K_nearest_neighbors(3,bbox)
-
         embedding_output = self.embeddings(
             input_ids, bbox, position_ids=position_ids, token_type_ids=token_type_ids
         )
@@ -207,12 +175,6 @@ class LayoutlmModel(BertModel):
             embedding_output, extended_attention_mask, head_mask=head_mask
         )
         sequence_output = encoder_outputs[0]
-        ori_sequence_output = sequence_output.clone()
-
-        for i, KNNs in enumerate(bKNNs):
-            for j, knn in enumerate(KNNs):
-                for n in knn:
-                    sequence_output[i][j] += ori_sequence_output[i][n]
 
         pooled_output = self.pooler(sequence_output)
 
@@ -246,8 +208,9 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         position_ids=None,
         head_mask=None,
         labels=None,
+        knns=None
     ):
-
+        print(knns)
         outputs = self.bert(
             input_ids=input_ids,
             bbox=bbox,
@@ -258,7 +221,14 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         )
 
         sequence_output = outputs[0]
-    
+
+        ori_sequence_output = sequence_output.clone()
+
+        for i, KNNs in enumerate(knns):
+            for j, knn in enumerate(KNNs):
+                for n in knn:
+                    sequence_output[i][j] += ori_sequence_output[i][n]
+
         sequence_output = self.dropout(sequence_output)
         logits = self.classifier(sequence_output)
 
