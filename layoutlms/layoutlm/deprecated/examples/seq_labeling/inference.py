@@ -82,44 +82,86 @@ def evaluate(args, model, tokenizer, labels, pad_token_label_id, mode, prefix=""
     out_label_ids = None
     model.eval()
 
-    for batch in tqdm(eval_dataloader, desc="Evaluating"):
+
+    if len(eval_dataset) == 2:
+      for batch in tqdm(eval_dataloader, desc="Evaluating"):
         with torch.no_grad():
-            inputs = {
-                "input_ids": batch[0].to(args.device),
-                "attention_mask": batch[1].to(args.device),
-                "labels": batch[3].to(args.device),
-            }
-            if args.model_type in ["layoutlm"]:
-                inputs["bbox"] = batch[4].to(args.device)
-            inputs["token_type_ids"] = (
-                batch[2].to(args.device)
-                if args.model_type in ["bert", "layoutlm"]
-                else None
-            )  # RoBERTa don"t use segment_ids
-            outputs = model(**inputs)
-            _, logits = outputs[:2]
+          inputs = {
+              "input_ids": batch[0][slice(1)].to(args.device),
+              "attention_mask": batch[1][slice(1)].to(args.device),
+              "labels": batch[3][slice(1)].to(args.device),
+          }
+          if args.model_type in ["layoutlm"]:
+              inputs["bbox"] = batch[4][slice(1)].to(args.device)
+          inputs["token_type_ids"] = (
+              batch[2][slice(1)].to(args.device)
+              if args.model_type in ["bert", "layoutlm"]
+              else None
+          )  # RoBERTa don"t use segment_ids
+          outputs = model(**inputs)
+          _, logits = outputs[:2]
 
-        if preds is None:
-            preds = logits.detach().cpu().numpy()
-            out_label_ids = inputs["labels"].detach().cpu().numpy()
-        else:
-            preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
-            out_label_ids = np.append(
-                out_label_ids, inputs["labels"].detach().cpu().numpy(), axis=0
-            )
+      if preds is None:
+          preds = logits.detach().cpu().numpy()
+          out_label_ids = inputs["labels"].detach().cpu().numpy()
+      else:
+          preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
+          out_label_ids = np.append(
+              out_label_ids, inputs["labels"].detach().cpu().numpy(), axis=0
+          )
 
-    preds = np.argmax(preds, axis=2)
+      preds = np.argmax(preds, axis=2)
 
-    label_map = {i: label for i, label in enumerate(labels)}
+      label_map = {i: label for i, label in enumerate(labels)}
 
-    out_label_list = [[] for _ in range(out_label_ids.shape[0])]
-    preds_list = [[] for _ in range(out_label_ids.shape[0])]
+      out_label_list = [[] for _ in range(out_label_ids.shape[0])]
+      preds_list = [[] for _ in range(out_label_ids.shape[0])]
 
-    for i in range(out_label_ids.shape[0]):
-        for j in range(out_label_ids.shape[1]):
-            if out_label_ids[i, j] != pad_token_label_id:
-                out_label_list[i].append(label_map[out_label_ids[i][j]])
-                preds_list[i].append(label_map[preds[i][j]])
+      for i in range(out_label_ids.shape[0]):
+          for j in range(out_label_ids.shape[1]):
+              if out_label_ids[i, j] != pad_token_label_id:
+                  out_label_list[i].append(label_map[out_label_ids[i][j]])
+                  preds_list[i].append(label_map[preds[i][j]])
+    else:
+      for batch in tqdm(eval_dataloader, desc="Evaluating"):
+        with torch.no_grad():
+          inputs = {
+              "input_ids": batch[0].to(args.device),
+              "attention_mask": batch[1].to(args.device),
+              "labels": batch[3].to(args.device),
+          }
+          if args.model_type in ["layoutlm"]:
+              inputs["bbox"] = batch[4].to(args.device)
+          inputs["token_type_ids"] = (
+              batch[2].to(args.device)
+              if args.model_type in ["bert", "layoutlm"]
+              else None
+          )  # RoBERTa don"t use segment_ids
+          # print(inputs)
+          outputs = model(**inputs)
+          _, logits = outputs[:2]
+
+      if preds is None:
+          preds = logits.detach().cpu().numpy()
+          out_label_ids = inputs["labels"].detach().cpu().numpy()
+      else:
+          preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
+          out_label_ids = np.append(
+              out_label_ids, inputs["labels"].detach().cpu().numpy(), axis=0
+          )
+
+      preds = np.argmax(preds, axis=2)
+
+      label_map = {i: label for i, label in enumerate(labels)}
+
+      out_label_list = [[] for _ in range(out_label_ids.shape[0])]
+      preds_list = [[] for _ in range(out_label_ids.shape[0])]
+
+      for i in range(out_label_ids.shape[0]):
+          for j in range(out_label_ids.shape[1]):
+              if out_label_ids[i, j] != pad_token_label_id:
+                  out_label_list[i].append(label_map[out_label_ids[i][j]])
+                  preds_list[i].append(label_map[preds[i][j]])
 
     return preds_list
 
