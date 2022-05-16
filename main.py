@@ -150,14 +150,14 @@ def getOCR(dt_boxes, rec_res):
 
 
 def rectifyImage(img):
-    if not config["Json"]["Use"]:
-        text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer',
-                              # CLS_MODEL_DIR='ch_ppocr_mobile_v2.0_cls_infer',
-                                GPU=torch.cuda.is_available(),
-                                PhaseI = config["Rotate"]["PhaseI"],
-                                PhaseII = config["Rotate"]["PhaseII"])
-        return text_sys(img)
-    return img
+    text_sys = TextSystem(DET_MODEL_DIR='ch_ppocr_server_v2.0_det_infer',
+                          # CLS_MODEL_DIR='ch_ppocr_mobile_v2.0_cls_infer',
+                            GPU=torch.cuda.is_available(),
+                            PhaseI = config["Rotate"]["PhaseI"],
+                            PhaseII = config["Rotate"]["PhaseII"])
+    new_img =  text_sys(img)
+    if not config["Json"]["Use"]: return img
+    return new_img
 
 
 def drawImage_CV(image, bboxes, preds):
@@ -173,11 +173,15 @@ def drawImage_CV(image, bboxes, preds):
 def drawImage(image, bboxes, preds, sem_labels, colors):
     bboxes_four_pts = []
     for bbox in bboxes:
-        bbox_four_pts = np.array([[bbox[0][0], bbox[0][1]], \
-                                [bbox[1][0], bbox[0][1]], \
-                                [bbox[1][0], bbox[1][1]], \
-                                [bbox[0][0], bbox[1][1]]],
-                                dtype="float32")
+        if not config["Json"]["Use"]:
+            bbox_four_pts = np.array([[bbox[0][0], bbox[0][1]], \
+                                    [bbox[1][0], bbox[0][1]], \
+                                    [bbox[1][0], bbox[1][1]], \
+                                    [bbox[0][0], bbox[1][1]]],
+                                    dtype="float32")
+        else:
+            bbox_four_pts = np.array(bbox,
+                                    dtype="float32")
         bboxes_four_pts.append(bbox_four_pts)
     pred_image = draw_ocr_box_txt(image, bboxes_four_pts, preds,
                 './Direction_Classify/latin.ttf', sem_labels, colors)
@@ -220,11 +224,12 @@ def get_LayoutLM_result(image, bboxes, words, file):
     preds = inference()
     
     preds = deal_with_preds(preds)
+
     pred_image = drawImage(image, bboxes, preds, 
                             sem_labels, colors)
-    pred_json = organizeJson(bboxes, words, preds)
+    #pred_json = organizeJson(bboxes, words, preds)
 
-    return pred_image, pred_json
+    return pred_image#, pred_json
 
 
 def get_LayoutLMv2_base_result():
@@ -247,7 +252,7 @@ if __name__ == "__main__":
     if not os.path.exists(config["DocumentFolder"]["Path"]) == []: 
         print("No Data in Document Folder")
     
-    for file in os.listdir(config["DocumentFolder"]["Path"]):
+    for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
         if not file.find("png") >= 0 and not file.find("jpg") >= 0 \
             and not file.find("jpeg") >= 0: 
             continue
@@ -260,7 +265,7 @@ if __name__ == "__main__":
         bboxes, words = get_OCR_result(rectified_img, filePath)
         
         if config["ModelType"]["Name"] == "LayoutLM":
-            img, jsn = get_LayoutLM_result(rectified_img, bboxes, words, file)
+            img = get_LayoutLM_result(rectified_img, bboxes, words, file)
         elif config["ModelType"]["Name"] == "LayoutLMv2":
             if config["ModelType"]["Base"]:
                 pass
@@ -268,5 +273,5 @@ if __name__ == "__main__":
                 pass
 
         cv.imwrite(os.path.join('output/image', file), img)
-        with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
-            json.dump(jsn, f)
+        # with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
+        #     json.dump(jsn, f)
