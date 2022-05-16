@@ -13,7 +13,7 @@ sys.path.insert(0, '/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/
 import cv2 as cv
 from PIL import Image
 
-a = torch.load("/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_train_layoutlm-base-uncased_512_tok_img_rowIDs")
+a = torch.load("/home/dreamaker/thesis/thesis/layoutlms/layoutlm/deprecated/examples/seq_labeling/data/cached_train_layoutlm-base-uncased_512_tok_img_rowIDs_knn")
 
 folder_path = '/home/dreamaker/thesis/thesis/SG_Dataset/test_tok/image/'
 def overlap(box1, box2):
@@ -36,49 +36,25 @@ def get_box(box, page_size):
                         int(boxx[3] * 1200 / page_size[1] ),
     return boxx
 
-
 # for item in a:
 #     img = cv.imread(os.path.join(folder_path, item.file_name))
 #     img = cv.resize(img, (int(1200*img.shape[1]/img.shape[0]), 1200))
 #     for i in range(512):
-#         if item.senIDs[i] != 0:
-#             if item.up_id[i] != 0 and item.senIDs[item.up_id[i]] != 0:
-#                 up_box = item.up_box[i]
-#                 uup_box = get_box(up_box, item.page_size)
-#                 cv.rectangle(img, (uup_box[0],uup_box[1]), (uup_box[2], uup_box[3]),
-#                     (100,100,100),thickness=3)
-#                 cv.putText(img, 'left', (uup_box[0], uup_box[1]),
-#                     cv.FONT_HERSHEY_COMPLEX, 0.4, color=(100,100,100))
-#             if item.down_id[i] != 0 and item.senIDs[item.down_id[i]] != 0:
-#                 down_box = item.down_box[i]
-#                 ddown_box = get_box(down_box, item.page_size)
-#                 cv.rectangle(img, (ddown_box[0], ddown_box[1]), (ddown_box[2], ddown_box[3]),
-#                     (156,120,40),thickness=3)
-#                 cv.putText(img, 'left', (ddown_box[0], ddown_box[1]), 
-#                     cv.FONT_HERSHEY_COMPLEX, 0.4, color=(156,120,40))
-#             if item.left_id[i] != 0 and item.senIDs[item.left_id[i]] != 0:
-#                 left_box = item.left_box[i]
-#                 lleft_box = get_box(left_box, item.page_size)
-#                 cv.rectangle(img, (lleft_box[0], lleft_box[1]), (lleft_box[2], lleft_box[3]),
-#                     (10,45,70), thickness=3)
-#                 cv.putText(img, 'left', (lleft_box[0], lleft_box[1]), 
-#                     cv.FONT_HERSHEY_COMPLEX, 0.4, color=(10,45,70))
-#             if item.right_id[i] != 0 and item.senIDs[item.right_id[i]] != 0:
-#                 right_box = item.right_box[i]
-#                 rright_box = get_box(right_box, item.page_size)
-#                 cv.rectangle(img, (rright_box[0], rright_box[1]), (rright_box[2], rright_box[3]),
-#                     (201,10,170),thickness=3)
-#                 cv.putText(img, 'right', (rright_box[0], rright_box[1]), 
-#                     cv.FONT_HERSHEY_COMPLEX, 0.4, color=(201,10,170))
+#         if item.senIDs[i] != 0 and item.label_ids[i] != 0 and item.label_ids[i] != -100:
+#             k_boxes = item.knn[i]
+#             for i, k_box in enumerate(k_boxes):
+#                 kbox = get_box(item.row_lines[k_box], item.page_size)
+#                 cv.rectangle(img, (kbox[0], kbox[1]), (kbox[2], kbox[3]),
+#                     (140,80,20), thickness=2)
 #             box = item.row_lines[i]
 #             bbox = get_box(box, item.page_size)
-
 #             cv.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]),
-#                     (20,130,110),thickness=3)
-#             cv.putText(img, 'center', (bbox[0], bbox[1]),
-#                 cv.FONT_HERSHEY_COMPLEX, 0.4, color=(20,130,110))
+#                     (100,13,20), thickness=2)
+#             # cv.putText(img, 'center', (bbox[0], bbox[1]),
+#             #     cv.FONT_HERSHEY_COMPLEX, 0.4, color=(20,130,110))
 #             cv.imshow('1', img)
 #             cv.waitKey(0)
+            
 
 
 def cal_dist(box1, box2):
@@ -90,6 +66,7 @@ def cal_dist(box1, box2):
 for i, item in enumerate(a):
     print(i, len(a))
 
+
     knn = []
     k_list = [0 for _ in range(10)]
     for u in range(512):
@@ -98,11 +75,13 @@ for i, item in enumerate(a):
 
     for j, box in enumerate(item.row_lines):
         dists = {}
+        curset = set()
         if item.senIDs[j] == 0: continue
         for k, obox in enumerate(item.row_lines):
-            if item.senIDs[k] == 0: continue
-            if k == j: continue
+            if item.senIDs[k] in curset: continue
+            if item.senIDs[k] == 0 or item.senIDs[k] == item.senIDs[j]: continue
             dists[k] = cal_dist(box, obox)
+            curset.add(item.senIDs[k])
         for l, (key, _) in enumerate(sorted(dists.items(), key=lambda item: item[1])):
             if l == 10: break
             a[i].knn[j][l] = key

@@ -210,7 +210,7 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
         labels=None,
         knns=None
     ):
-        print(knns)
+
         outputs = self.bert(
             input_ids=input_ids,
             bbox=bbox,
@@ -222,12 +222,12 @@ class LayoutlmForTokenClassification(BertPreTrainedModel):
 
         sequence_output = outputs[0]
 
-        ori_sequence_output = sequence_output.clone()
+        ori_sequence_output = sequence_output.clone().detach()
 
         for i, KNNs in enumerate(knns):
             for j, knn in enumerate(KNNs):
-                for n in knn:
-                    sequence_output[i][j] += ori_sequence_output[i][n]
+                for n in knn[:3]:
+                    sequence_output[i][j] += ori_sequence_output[i][n] * ori_sequence_output[i][j]
 
         sequence_output = self.dropout(sequence_output)
         logits = self.classifier(sequence_output)
