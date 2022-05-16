@@ -16,7 +16,7 @@ from layoutlms.layoutlm.deprecated.examples.seq_labeling.inference import infere
 from Direction_Classify.tool.utility import draw_ocr_box_txt
 from data.preprocess import convert, seg
 
-
+os.environ["CUDA_LAUNCH_BLOCKING"] = '1'
 sem_labels = ['O', 'Consignee', 'Shipper', 'TotalGW', 
 'C.COO', 'No', 'Currency', 'Page', 'C.Desc', 
 'Date', 'TermType', 'C.Total', 'C.Qty', 
