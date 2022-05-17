@@ -10,9 +10,11 @@ import zipfile
 import tarfile
 import shutil
 import random
-from IPython.display import Image
-# from PIL import Image
 import pandas as pd
+import matplotlib.pyplot as plt # plt 用于显示图片
+import matplotlib.image as mpimg # mpimg 用于读取图片
+import numpy as np
+ 
 
 from Direction_Classify.tool.predict_system import TextSystem
 from layoutlms.layoutlm.deprecated.examples.seq_labeling.inference import inference
@@ -192,6 +194,7 @@ def organizeJson(bboxes, words, preds):
     for i in range(min(len(bboxes), len(preds))):
         bbox = bboxes[i]
         word = words[i]
+        if word == '': continue
         pred = preds[i]
 
         data.append({
@@ -202,7 +205,7 @@ def organizeJson(bboxes, words, preds):
     for i in range(len(preds), len(bboxes), 1):
         bbox = bboxes[i]
         word = words[i]
-
+        if word == '': continue
         data.append({
                             "tokens": word,
                             "sematic": 'O',
@@ -278,10 +281,15 @@ if __name__ == "__main__":
         filePath = os.path.join(config["DocumentFolder"]["Path"], file)
         origin_img = cv.imread(filePath)
         rectified_img = rectifyImage(origin_img)
-        # cv.imwrite(os.path.join('output/rectify', file), rectified_img)
-        Image(os.path.join('output/rectify', file))
-        # im = Image.open(os.path.join('output/image', file))  
-        # im.show()
+        cv.imwrite(os.path.join('output/rectify', file), rectified_img)
+
+        lena = mpimg.imread(os.path.join('output/image', file)) # 读取和代码处于同一目录下的 lena.png
+        # 此时 lena 就已经是一个 np.array 了，可以对它进行任意处理
+        lena.shape #(512, 512, 3)
+        plt.imshow(lena) # 显示图片
+        plt.axis('off') # 不显示坐标轴
+        plt.show()
+        
         bboxes, words = get_OCR_result(rectified_img, filePath)
         
         if config["ModelType"]["Name"] == "LayoutLM":
@@ -293,10 +301,15 @@ if __name__ == "__main__":
                 pass
 
         cv.imwrite(os.path.join('output/image', file), img)
-        Image(os.path.join('output/image', file))
-        # im = Image.open(os.path.join('output/image', file))  
-        # im.show()
+
+        lena = mpimg.imread(os.path.join('output/image', file)) # 读取和代码处于同一目录下的 lena.png
+        # 此时 lena 就已经是一个 np.array 了，可以对它进行任意处理
+        lena.shape #(512, 512, 3)
+        plt.imshow(lena) # 显示图片
+        plt.axis('off') # 不显示坐标轴
+        plt.show()
+        
         with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
             json.dump(jsn, f)
-        print(pd.read_json('output/json/ACTMAX_4.json'))
-        print(output)
+       
+        print(pd.read_json(output))
