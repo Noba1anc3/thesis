@@ -275,7 +275,7 @@ if __name__ == "__main__":
         filePath = os.path.join(config["DocumentFolder"]["Path"], file)
         origin_img = cv.imread(filePath)
         rectified_img = rectifyImage(origin_img)
-        cv.imwrite(os.path.join('output/rectify', file), img)
+        cv.imwrite(os.path.join('output/rectify', file), rectified_img)
         bboxes, words = get_OCR_result(rectified_img, filePath)
         
         if config["ModelType"]["Name"] == "LayoutLM":
