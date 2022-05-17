@@ -156,7 +156,7 @@ def rectifyImage(img):
                             PhaseI = config["Rotate"]["PhaseI"],
                             PhaseII = config["Rotate"]["PhaseII"])
     new_img =  text_sys(img)
-    if not config["Json"]["Use"]: return img
+    
     return new_img
 
 
