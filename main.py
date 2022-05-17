@@ -305,5 +305,5 @@ if __name__ == "__main__":
             json.dump(jsn, f)
           
         with open(os.path.join('output/simplify', file[:-3] + "json"), 'w') as f:
-            json.dump(jsn, f)
+            json.dump(output, f)
         print(output)
