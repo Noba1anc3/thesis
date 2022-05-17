@@ -280,7 +280,7 @@ if __name__ == "__main__":
         rectified_img = rectifyImage(origin_img)
         # cv.imwrite(os.path.join('output/rectify', file), rectified_img)
         # Image.show(os.path.join('output/rectify', file))
-        im = Image.open(r"C:\Users\System-Pc\Desktop\home.png")  
+        im = Image.open(os.path.join('output/image', file))  
         im.show()
         bboxes, words = get_OCR_result(rectified_img, filePath)
         
@@ -294,7 +294,7 @@ if __name__ == "__main__":
 
         cv.imwrite(os.path.join('output/image', file), img)
         # Image.show(os.path.join('output/image', file))
-        im = Image.open(r"C:\Users\System-Pc\Desktop\home.png")  
+        im = Image.open(os.path.join('output/image', file))  
         im.show()
         with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
             json.dump(jsn, f)
