@@ -222,9 +222,9 @@ def deal_with_preds(preds):
 
 def simplify(words, preds):
     output = []
-    for pred in preds:
+    for (word, pred) in zip(words, preds):
         if not pred == 'O':
-            output.append([words[i], pred])
+            output.append([word, pred])
     return output
 
 def get_LayoutLM_result(image, bboxes, words, file):
