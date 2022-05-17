@@ -220,6 +220,12 @@ def deal_with_preds(preds):
 
     return preds
 
+def simplify(words, preds):
+    output = []
+    for pred in preds:
+        if not pred == 'O':
+            output.append([words[i], pred])
+    return output
 
 def get_LayoutLM_result(image, bboxes, words, file):
     print('-------------------- Making Testing Dataset --------------------')
@@ -233,8 +239,9 @@ def get_LayoutLM_result(image, bboxes, words, file):
     pred_image = drawImage(image, bboxes, preds, 
                             sem_labels, colors)
     pred_json = organizeJson(bboxes, words, preds)
-
-    return pred_image#, pred_json
+    simplified_output = simplify(words, preds)
+    
+    return pred_image, pred_json, simplified_output
 
 
 def get_LayoutLMv2_base_result():
@@ -253,6 +260,7 @@ if __name__ == "__main__":
 
     if not os.path.exists('output'): os.mkdir('output')
     if not os.path.exists('output/image'): os.mkdir('output/image')
+    if not os.path.exists('output/rectify'): os.mkdir('output/rectify')
     if not os.path.exists('output/json'): os.mkdir('output/json')
     if os.listdir(config["DocumentFolder"]["Path"]) == []: 
         print("No Data in Document Folder")
@@ -267,10 +275,11 @@ if __name__ == "__main__":
         filePath = os.path.join(config["DocumentFolder"]["Path"], file)
         origin_img = cv.imread(filePath)
         rectified_img = rectifyImage(origin_img)
+        cv.imwrite(os.path.join('output/rectify', file), img)
         bboxes, words = get_OCR_result(rectified_img, filePath)
         
         if config["ModelType"]["Name"] == "LayoutLM":
-            img = get_LayoutLM_result(rectified_img, bboxes, words, file)
+            img, jsn, output = get_LayoutLM_result(rectified_img, bboxes, words, file)
         elif config["ModelType"]["Name"] == "LayoutLMv2":
             if config["ModelType"]["Base"]:
                 pass
@@ -280,3 +289,4 @@ if __name__ == "__main__":
         cv.imwrite(os.path.join('output/image', file), img)
         with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
             json.dump(jsn, f)
+        print(output)
