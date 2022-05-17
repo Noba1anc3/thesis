@@ -229,6 +229,7 @@ def deal_with_preds(preds):
 def simplify(words, preds):
     output = []
     for (word, pred) in zip(words, preds):
+        if word == '': continue
         if not pred == 'O':
             output.append([word, pred])
     return output
@@ -282,13 +283,6 @@ if __name__ == "__main__":
         origin_img = cv.imread(filePath)
         rectified_img = rectifyImage(origin_img)
         cv.imwrite(os.path.join('output/rectify', file), rectified_img)
-
-        lena = mpimg.imread(os.path.join('output/image', file)) # 读取和代码处于同一目录下的 lena.png
-        # 此时 lena 就已经是一个 np.array 了，可以对它进行任意处理
-        lena.shape #(512, 512, 3)
-        plt.imshow(lena) # 显示图片
-        plt.axis('off') # 不显示坐标轴
-        plt.show()
         
         bboxes, words = get_OCR_result(rectified_img, filePath)
         
@@ -301,15 +295,8 @@ if __name__ == "__main__":
                 pass
 
         cv.imwrite(os.path.join('output/image', file), img)
-
-        lena = mpimg.imread(os.path.join('output/image', file)) # 读取和代码处于同一目录下的 lena.png
-        # 此时 lena 就已经是一个 np.array 了，可以对它进行任意处理
-        lena.shape #(512, 512, 3)
-        plt.imshow(lena) # 显示图片
-        plt.axis('off') # 不显示坐标轴
-        plt.show()
         
         with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
             json.dump(jsn, f)
        
-        print(pd.read_json(output))
+        print(pd.DataFrame(output, columns=['Tokens', 'Semantic']))
