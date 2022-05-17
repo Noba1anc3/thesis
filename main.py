@@ -189,7 +189,7 @@ def drawImage(image, bboxes, preds, sem_labels, colors):
 
 def organizeJson(bboxes, words, preds):
     data = {"items":[]}
-    for i in range(len(bboxes)):
+    for i in range(min(len(bboxes), len(preds)):
         bbox = bboxes[i]
         word = words[i]
         pred = preds[i]
@@ -197,6 +197,15 @@ def organizeJson(bboxes, words, preds):
         data["items"].append({
                             "word": word,
                             "sematic": pred,
+                            "location": bbox
+                            })
+    for i in range(len(preds), len(bboxes), 1):
+        bbox = bboxes[i]
+        word = words[i]
+
+        data["items"].append({
+                            "word": word,
+                            "sematic": 'O',
                             "location": bbox
                             })
     return data
@@ -226,7 +235,7 @@ def get_LayoutLM_result(image, bboxes, words, file):
 
     pred_image = drawImage(image, bboxes, preds, 
                             sem_labels, colors)
-    #pred_json = organizeJson(bboxes, words, preds)
+    pred_json = organizeJson(bboxes, words, preds)
 
     return pred_image#, pred_json
 
@@ -272,5 +281,5 @@ if __name__ == "__main__":
                 pass
 
         cv.imwrite(os.path.join('output/image', file), img)
-        # with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
-        #     json.dump(jsn, f)
+        with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
+            json.dump(jsn, f)
