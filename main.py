@@ -227,12 +227,15 @@ def deal_with_preds(preds):
     return preds
 
 def simplify(words, preds):
-    output = []
+    output_dict = {}
     for (word, pred) in zip(words, preds):
         if word == '': continue
         if not pred == 'O':
-            output.append([word, pred])
-    return output
+            if pred not in output_dict.keys():
+                output_dict[pred] = word
+            else:
+                output_dict[pred] += word
+    return output_dict
 
 def get_LayoutLM_result(image, bboxes, words, file):
     print('-------------------- Making Testing Dataset --------------------')
@@ -299,4 +302,4 @@ if __name__ == "__main__":
         with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
             json.dump(jsn, f)
        
-        print(pd.DataFrame(output, columns=['Tokens', 'Semantic']))
+        print(pd.DataFrame(output))
