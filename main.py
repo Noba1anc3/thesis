@@ -124,12 +124,11 @@ def readJson(jsnPath):
 
 def get_OCR_result(image, filePath):
     jsnFilePath = filePath[:-3].replace("images", "json").replace("image", "json") + 'json'
-    if config["Json"]["Use"] and os.path.exists(jsnFilePath): return readJson(jsnFilePath)
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
     bboxes, words = getOCR(dt_boxes, rec_res)
-
-    return bboxes, words
+    if config["Json"]["Use"] and os.path.exists(jsnFilePath): return readJson(jsnFilePath)
+    # return bboxes, words
 
 
 def getOCR(dt_boxes, rec_res):
