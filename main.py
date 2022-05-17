@@ -185,14 +185,14 @@ def drawImage(image, bboxes, preds, sem_labels, colors):
 
 
 def organizeJson(bboxes, words, preds):
-    data = {"items":[]}
+    data = []
     for i in range(min(len(bboxes), len(preds))):
         bbox = bboxes[i]
         word = words[i]
         pred = preds[i]
 
-        data["items"].append({
-                            "word": word,
+        data.append({
+                            "tokens": word,
                             "sematic": pred,
                             "location": bbox
                             })
@@ -200,8 +200,8 @@ def organizeJson(bboxes, words, preds):
         bbox = bboxes[i]
         word = words[i]
 
-        data["items"].append({
-                            "word": word,
+        data.append({
+                            "tokens": word,
                             "sematic": 'O',
                             "location": bbox
                             })
