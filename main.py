@@ -10,7 +10,8 @@ import zipfile
 import tarfile
 import shutil
 import random
-from IPython.display import Image
+# from IPython.display import Image
+from PIL import Image
 import pandas as pd
 
 from Direction_Classify.tool.predict_system import TextSystem
@@ -278,7 +279,9 @@ if __name__ == "__main__":
         origin_img = cv.imread(filePath)
         rectified_img = rectifyImage(origin_img)
         # cv.imwrite(os.path.join('output/rectify', file), rectified_img)
-        Image.show(os.path.join('output/rectify', file))
+        # Image.show(os.path.join('output/rectify', file))
+        im = Image.open(r"C:\Users\System-Pc\Desktop\home.png")  
+        im.show()
         bboxes, words = get_OCR_result(rectified_img, filePath)
         
         if config["ModelType"]["Name"] == "LayoutLM":
@@ -290,7 +293,9 @@ if __name__ == "__main__":
                 pass
 
         cv.imwrite(os.path.join('output/image', file), img)
-        Image.show(os.path.join('output/image', file))
+        # Image.show(os.path.join('output/image', file))
+        im = Image.open(r"C:\Users\System-Pc\Desktop\home.png")  
+        im.show()
         with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
             json.dump(jsn, f)
         print(pd.read_json('output/json/ACTMAX_4.json'))
