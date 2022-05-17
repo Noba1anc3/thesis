@@ -234,7 +234,7 @@ def simplify(words, preds):
             if pred not in output_dict.keys():
                 output_dict[pred] = word
             else:
-                output_dict[pred] += word
+                output_dict[pred] += (' ' + word)
     return output_dict
 
 def get_LayoutLM_result(image, bboxes, words, file):
@@ -306,4 +306,4 @@ if __name__ == "__main__":
           
         with open(os.path.join('output/simplify', file[:-3] + "json"), 'w') as f:
             json.dump(jsn, f)
-        print(pd.DataFrame.from_dict(output))
+        print(output)
