@@ -272,6 +272,8 @@ if __name__ == "__main__":
     if not os.path.exists('output/image'): os.mkdir('output/image')
     if not os.path.exists('output/rectify'): os.mkdir('output/rectify')
     if not os.path.exists('output/json'): os.mkdir('output/json')
+    if not os.path.exists('output/simplify'): os.mkdir('output/simplify')
+     
     if os.listdir(config["DocumentFolder"]["Path"]) == []: 
         print("No Data in Document Folder")
     
@@ -301,5 +303,7 @@ if __name__ == "__main__":
         
         with open(os.path.join('output/json', file[:-3] + "json"), 'w') as f:
             json.dump(jsn, f)
-       
-        print(pd.DataFrame(output))
+          
+        with open(os.path.join('output/simplify', file[:-3] + "json"), 'w') as f:
+            json.dump(jsn, f)
+        print(pd.DataFrame.from_dict(output))
