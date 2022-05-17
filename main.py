@@ -172,14 +172,11 @@ def drawImage_CV(image, bboxes, preds):
 def drawImage(image, bboxes, preds, sem_labels, colors):
     bboxes_four_pts = []
     for bbox in bboxes:
-        if not config["Json"]["Use"]:
-            bbox_four_pts = np.array([[bbox[0][0], bbox[0][1]], \
+        if len(bbox) > 2: bbox_four_pts = np.array(bbox, dtype="float32")
+        else: bbox_four_pts = np.array([[bbox[0][0], bbox[0][1]], \
                                     [bbox[1][0], bbox[0][1]], \
                                     [bbox[1][0], bbox[1][1]], \
                                     [bbox[0][0], bbox[1][1]]],
-                                    dtype="float32")
-        else:
-            bbox_four_pts = np.array(bbox,
                                     dtype="float32")
         bboxes_four_pts.append(bbox_four_pts)
     pred_image = draw_ocr_box_txt(image, bboxes_four_pts, preds,
