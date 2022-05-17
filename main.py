@@ -186,7 +186,7 @@ def drawImage(image, bboxes, preds, sem_labels, colors):
 
 def organizeJson(bboxes, words, preds):
     data = {"items":[]}
-    for i in range(min(len(bboxes), len(preds)):
+    for i in range(min(len(bboxes), len(preds))):
         bbox = bboxes[i]
         word = words[i]
         pred = preds[i]
