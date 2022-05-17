@@ -249,7 +249,7 @@ if __name__ == "__main__":
     if not os.path.exists('output'): os.mkdir('output')
     if not os.path.exists('output/image'): os.mkdir('output/image')
     if not os.path.exists('output/json'): os.mkdir('output/json')
-    if not os.path.exists(config["DocumentFolder"]["Path"]) == []: 
+    if os.listdir(config["DocumentFolder"]["Path"]) == []: 
         print("No Data in Document Folder")
     
     for file in sorted(os.listdir(config["DocumentFolder"]["Path"])):
@@ -257,7 +257,7 @@ if __name__ == "__main__":
             and not file.find("jpeg") >= 0: 
             continue
         
-        print('--------------------', file, '--------------------', '\n')
+        print('\n\n\n\n--------------------', file, '--------------------', '\n')
         
         filePath = os.path.join(config["DocumentFolder"]["Path"], file)
         origin_img = cv.imread(filePath)
