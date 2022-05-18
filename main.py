@@ -208,7 +208,7 @@ def organizeJson(bboxes, words, preds):
         if word == '': continue
         data.append({
                             "tokens": word,
-                            "sematic": 'O',
+                            "semantic": 'O',
                             "location": bbox
                             })
     
