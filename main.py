@@ -309,4 +309,4 @@ if __name__ == "__main__":
           
         with open(os.path.join('output/simplify', file[:-3] + "json"), 'w') as f:
             json.dump(output, f)
-        pd.DataFrame.from_dict(output)
+        print(pd.DataFrame.from_dict(output))
