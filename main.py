@@ -211,6 +211,9 @@ def organizeJson(bboxes, words, preds):
                             "sematic": 'O',
                             "location": bbox
                             })
+    
+    data.sort(key= lambda x: x["semantic'])
+                               
     return data
 
 
@@ -306,4 +309,4 @@ if __name__ == "__main__":
           
         with open(os.path.join('output/simplify', file[:-3] + "json"), 'w') as f:
             json.dump(output, f)
-        print(output)
+        pd.DataFrame.from_dict(output)
