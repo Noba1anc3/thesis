@@ -212,7 +212,7 @@ def organizeJson(bboxes, words, preds):
                             "location": bbox
                             })
     
-    data.sort(key= lambda x: x["semantic'])
+    data.sort(key= lambda x: x["semantic"])
                                
     return data
 
