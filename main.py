@@ -132,7 +132,7 @@ def get_OCR_result(image, filePath):
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
     bboxes, words = getOCR(dt_boxes, rec_res)
-    if config["Json"]["Use"] and os.path.exists(jsnFilePath): return readJson(jsnFilePath)
+    if config["Bbox"]["Cal"] and os.path.exists(jsnFilePath): return readJson(jsnFilePath)
     return bboxes, words
 
 
