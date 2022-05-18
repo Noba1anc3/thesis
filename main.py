@@ -238,7 +238,12 @@ def simplify(words, preds):
                 output_dict[pred] = word
             else:
                 output_dict[pred] += (' ' + word)
-    return output_dict
+  
+    output = []
+    for (key, value) in output_dict.items():
+      output.append({"semantic": key, "value": value})
+
+    return output
 
 def get_LayoutLM_result(image, bboxes, words, file):
     print('-------------------- Making Testing Dataset --------------------')
@@ -309,4 +314,4 @@ if __name__ == "__main__":
           
         with open(os.path.join('output/simplify', file[:-3] + "json"), 'w') as f:
             json.dump(output, f)
-        print(pd.DataFrame.from_dict(output))
+
