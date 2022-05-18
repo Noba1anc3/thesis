@@ -199,7 +199,7 @@ def organizeJson(bboxes, words, preds):
 
         data.append({
                             "tokens": word,
-                            "sematic": pred,
+                            "semantic": pred,
                             "location": bbox
                             })
     for i in range(len(preds), len(bboxes), 1):
