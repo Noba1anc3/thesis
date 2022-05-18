@@ -5,8 +5,8 @@ ModelType:
   Name: LayoutLM
   Base: True
 
-Json:
-  Use: True
+Bbox:
+  Cal: False
 
 Rotate:
   PhaseI: True
