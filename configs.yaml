@@ -12,5 +12,5 @@ Bbox:
   Cal: False
 
 Rotate:
-  PhaseI: True
+  PhaseI: False
   PhaseII: True
