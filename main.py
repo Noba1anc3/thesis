@@ -85,7 +85,10 @@ def prepare_models():
     if not os.path.exists('models/layoutlm'):
         shutil.copytree('/content/drive/My Drive/layoutlm', 'models/layoutlm')
 
-
+    shutil.copyfile('/content/drive/My Drive/json.zip', 'layoutlms/layoutlmft/anno.zip')
+    with tarfile.TarFile('layoutlms/layoutlmft/anno.zip') as t:
+        t.extractall("layoutlms/layoutlmft/")
+    
 def change_PaddleOCR():
     folder = 'PaddleOCR'
     lis = ["benchmark", "configs", "deploy", "doc", "ppocr", "PPOCRLabel",
@@ -128,7 +131,7 @@ def readJson(jsnPath):
 
 
 def get_OCR_result(image, filePath):
-    jsnFilePath = filePath[:-3].replace("images", "json").replace("image", "json") + 'json'
+    jsnFilePath = "layoutlms/layoutlmft/anno/" + filePath.split("images")[1][:-3] + 'json'
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
     bboxes, words = getOCR(dt_boxes, rec_res)
