@@ -131,7 +131,7 @@ def readJson(jsnPath):
 
 
 def get_OCR_result(image, filePath):
-    jsnFilePath = "layoutlms/layoutlmft/anno/" + filePath.split("images")[1][:-3] + 'json'
+    jsnFilePath = "layoutlms/layoutlmft/anno" + filePath.split("images")[1][:-3] + 'json'
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
     bboxes, words = getOCR(dt_boxes, rec_res)
