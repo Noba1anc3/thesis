@@ -85,11 +85,11 @@ def prepare_models():
     if not os.path.exists('models/layoutlm'):
         shutil.copytree('/content/drive/My Drive/layoutlm', 'models/layoutlm')
 
-    shutil.copyfile('/content/drive/My Drive/json.zip', 'layoutlms/layoutlmft/anno.zip')
-    with zipfile.ZipFile('layoutlms/layoutlmft/anno.zip') as z:
-            z.extractall("layoutlms/layoutlmft/")
+    shutil.copyfile('/content/drive/My Drive/model.zip', 'layoutlms/layoutlmft/model.zip')
+    with zipfile.ZipFile('layoutlms/layoutlmft/model.zip') as z:
+        z.extractall("layoutlms/layoutlmft/")
     
-def change_PaddleOCR():
+def change():
     folder = 'PaddleOCR'
     lis = ["benchmark", "configs", "deploy", "doc", "ppocr", "PPOCRLabel",
                                     "ppstructure", "StyleText", "test_tipc", "tools"]
@@ -140,7 +140,6 @@ def get_OCR_result(image, filePath):
           number = num_list[i]
           break
       filePath = filePath.split(".png")[0] + "_" + str(number) + ".png"
-      print(filePath)
 
     jsnFilePath = "layoutlms/layoutlmft/json" + filePath.split("images")[1][:-3] + 'json'
     text_sys = OCRTextSystem()
@@ -288,7 +287,7 @@ if __name__ == "__main__":
     __dir__ = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(os.path.join(__dir__, "PaddleOCR"))
     from PaddleOCR.tools.infer.predict_system import TextSystem as OCRTextSystem
-    change_PaddleOCR()
+    change()
 
     if not os.path.exists('output'): os.mkdir('output')
     if not os.path.exists('output/image'): os.mkdir('output/image')
