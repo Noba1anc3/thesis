@@ -86,8 +86,8 @@ def prepare_models():
         shutil.copytree('/content/drive/My Drive/layoutlm', 'models/layoutlm')
 
     shutil.copyfile('/content/drive/My Drive/json.zip', 'layoutlms/layoutlmft/anno.zip')
-    with tarfile.TarFile('layoutlms/layoutlmft/anno.zip') as t:
-        t.extractall("layoutlms/layoutlmft/")
+    with zipfile.ZipFile('layoutlms/layoutlmft/anno.zip') as z:
+            z.extractall("layoutlms/layoutlmft/")
     
 def change_PaddleOCR():
     folder = 'PaddleOCR'
