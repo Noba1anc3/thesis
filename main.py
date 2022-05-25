@@ -131,6 +131,17 @@ def readJson(jsnPath):
 
 
 def get_OCR_result(image, filePath):
+    if not filePath.split(".png")[0][-1].isdigit(): 
+      num_list = [1, 1, 57, 19, 13, 12]
+      company_list = ["ALPHA", "AMPHENOLE", "INFINEON", "KOMAGUSAM", "SIIX", "TOSHIBA"]
+      for i, company in enumerate(company_list):
+        number = 0
+        if filePath.find(company) > 0: 
+          number = num_list[i]
+          break
+      filePath = filePath.split(".png")[0] + "_" + str(number) + ".png"
+      print(filePath)
+
     jsnFilePath = "layoutlms/layoutlmft/json" + filePath.split("images")[1][:-3] + 'json'
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
