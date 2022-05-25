@@ -88,6 +88,9 @@ def prepare_models():
     shutil.copyfile('/content/drive/My Drive/model.zip', 'layoutlms/layoutlmft/model.zip')
     with zipfile.ZipFile('layoutlms/layoutlmft/model.zip') as z:
         z.extractall("layoutlms/layoutlmft/")
+    shutil.copyfile('/content/drive/My Drive/mode1.zip', 'layoutlms/layoutlmv2/mode1.zip')
+    with zipfile.ZipFile('layoutlms/layoutlmv2/mode1.zip') as z:
+        z.extractall("layoutlms/layoutlmv2/")
     
 def change():
     folder = 'PaddleOCR'
@@ -140,8 +143,10 @@ def get_OCR_result(image, filePath):
           number = num_list[i]
           break
       filePath = filePath.split(".png")[0] + "_" + str(number) + ".png"
-
-    jsnFilePath = "layoutlms/layoutlmft/json" + filePath.split("images")[1][:-3] + 'json'
+    if config["Model"]["Version"] == 2:
+        jsnFilePath = "layoutlms/layoutlmv2/json" + filePath.split("images")[1][:-3] + 'json'
+    else:
+        jsnFilePath = "layoutlms/layoutlmft/json" + filePath.split("images")[1][:-3] + 'json'
     text_sys = OCRTextSystem()
     dt_boxes, rec_res = text_sys(image)
     bboxes, words = getOCR(dt_boxes, rec_res)
