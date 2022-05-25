@@ -138,7 +138,7 @@ def readJson(jsnPath):
 
 def get_OCR_result(image, filePath):
     if not filePath.split(".png")[0][-1].isdigit(): 
-      num_list = [1, 1, 57, 19, 13, 12]
+      num_list = [1, 1, 57, 19, 13, 25]
       company_list = ["ALPHA", "AMPHENOLE", "INFINEON", "KOMAGUSAM", "SIIX", "TOSHIBA"]
       for i, company in enumerate(company_list):
         number = 0
