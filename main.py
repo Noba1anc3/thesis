@@ -128,6 +128,9 @@ def readJson(jsnPath):
     bboxes, words = [], []
     for item in jsonfile["items"]:
         key = list(item.keys())[0]
+        if item[key]["locations"][2][0] < item[key]["locations"][0][0]: continue
+        if item[key]["locations"][2][1] < item[key]["locations"][0][1]: continue
+        if item[key]["value"] == "": continue
         bboxes.append(item[key]["locations"])
         words.append(item[key]["value"])
     return bboxes, words
